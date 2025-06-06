@@ -1,2 +1,7 @@
 # Burme-Mark
-mkdir burme-mark cd burme-mark git init
+```
+mkdir burme-mark
+cd burme-mark
+git init
+```
+
