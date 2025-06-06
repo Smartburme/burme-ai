@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burme Mark - Live Streaming & Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- လော့ဂင်စခရင် -->
+        <div class="login-screen" id="loginScreen">
+            <img src="logo.png" alt="Burme Mark Logo" class="logo">
+            <input type="email" placeholder="အီးမေးလ်" id="emailInput">
+            <input type="password" placeholder="စကားဝှက်" id="passwordInput">
+            <button onclick="login()">အကောင့်ဝင်ရန်</button>
+            <div class="social-login">
+                <button class="fb-login">Facebook ဖြင့်ဝင်ရန်</button>
+                <button class="google-login">Google ဖြင့်ဝင်ရန်</button>
+            </div>
+        </div>
+
+        <!-- အဓိကစာမျက်နှာ (ဝင်ပြီးမှပြမည်) -->
+        <div class="main-app" id="mainApp" style="display:none;">
+            <!-- Stream Viewer UI ကိုဒီနေရာမှာထည့်မည် -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
