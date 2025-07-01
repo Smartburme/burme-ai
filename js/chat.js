@@ -23,7 +23,7 @@ function appendMessage(text, sender = 'bot', isImage = false) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Send text/image/code
+// Send message logic
 async function sendMessage() {
   const message = userInput.value.trim();
   const mode = modeSelect.value;
@@ -37,11 +37,9 @@ async function sendMessage() {
   try {
     const reply = await generateGeminiReply(message, mode);
 
-    // Remove "AI is thinking..." placeholder
+    // Remove thinking message
     const lastBotMsg = chatContainer.querySelector('.chat-message.bot:last-child');
-    if (lastBotMsg && lastBotMsg.textContent.includes("AI is thinking")) {
-      lastBotMsg.remove();
-    }
+    if (lastBotMsg && lastBotMsg.textContent.includes("thinking")) lastBotMsg.remove();
 
     appendMessage(reply, 'bot');
     addTag(`#${mode}`);
@@ -50,7 +48,7 @@ async function sendMessage() {
   }
 }
 
-// Image upload handler
+// Image upload logic
 function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -59,11 +57,9 @@ function uploadImage(event) {
   reader.onload = function (e) {
     const imageData = e.target.result;
     appendMessage(imageData, 'user', true);
-
-    // Optional: AI reply to image
     appendMessage("⏳ Image received. Processing...", 'bot');
 
-    // ❗ You may handle image-to-text with Gemini multimodal API here
+    // Placeholder image reply
     setTimeout(() => {
       appendMessage("📷 AI: ဓာတ်ပုံအား လက်ခံပြီး ဖြစ်ပါသည်။", 'bot');
     }, 1000);
@@ -71,7 +67,7 @@ function uploadImage(event) {
   reader.readAsDataURL(file);
 }
 
-// Tag UI helper
+// Add tag
 function addTag(text) {
   const tag = document.createElement('div');
   tag.classList.add('tag');
@@ -79,7 +75,7 @@ function addTag(text) {
   tagBar.appendChild(tag);
 }
 
-// Export for HTML
+// Expose functions
 window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
 window.appendMessage = appendMessage;
