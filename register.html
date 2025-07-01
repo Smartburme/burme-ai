@@ -1,56 +1,130 @@
-<!-- index.html --><!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Burme AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="assets/icon.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Register</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: skyblue;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px cyan;
+      text-align: center;
+      color: white;
+      width: 90%;
+      max-width: 320px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #00ffff;
+      color: black;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #00ffff;
+      font-size: 22px;
+    }
+
+    .link {
+      color: #00ffff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 13px;
+    }
+  </style>
 </head>
-<body class="float3D">
-  <!-- Loader -->
-  <div id="loader" class="loader-container">
-    <div class="loader"></div>
-  </div>  <!-- Login Box -->  <div class="auth-box" id="login-box" style="display: none;">
-    <h2>🔐 Welcome Back</h2>
-    <input id="email" type="email" placeholder="Email Address" required>
-    <input id="password" type="password" placeholder="Password" required>
-    <button onclick="loginUser(email.value, password.value)">Sign In</button>
-    <p>
-      No account? <a href="register.html">Sign Up</a> |
-      <a href="reset.html">Forgot password?</a>
-    </p>
-  </div>  <script>
-    // Show loader first
-    window.addEventListener('load', () => {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('login-box').style.display = 'block';
-    });
-  </script>  <script src="js/auth.js"></script>  <script src="js/ui.js"></script></body>
-</html><!-- register.html --><!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Register - Burme AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="assets/icon.jpg">
-</head>
-<body class="float3D">
-  <!-- Loader -->
-  <div id="loader" class="loader-container">
-    <div class="loader"></div>
-  </div>  <!-- Register Box -->  <div class="auth-box" id="register-box" style="display: none;">
-    <h2>📝 Create an Account</h2>
-    <input id="name" type="text" placeholder="Display Name" required>
-    <input id="email" type="email" placeholder="Email Address" required>
-    <input id="password" type="password" placeholder="Password" required>
-    <button onclick="registerUser(name.value, email.value, password.value)">Create Account</button>
-    <p>
-      Already have an account? <a href="index.html">Sign In</a>
-    </p>
-  </div>  <script>
-    window.addEventListener('load', () => {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('register-box').style.display = 'block';
-    });
-  </script>  <script src="js/auth.js"></script>  <script src="js/ui.js"></script></body>
+<body>
+
+<div class="container">
+  <h1>Create Account</h1>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <input type="password" id="confirm" placeholder="Confirm Password">
+  <button onclick="register()">Register</button>
+  <p class="link" onclick="goToLogin()">Already have an account? Login</p>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
+    authDomain: "smart-burme-app.firebaseapp.com",
+    projectId: "smart-burme-app",
+    storageBucket: "smart-burme-app.appspot.com",
+    messagingSenderId: "851502425686",
+    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  function register() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+
+    if (password !== confirm) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        alert("Registration successful!");
+        window.location.href = "mainchat.html";
+      })
+      .catch(error => {
+        alert("Registration failed: " + error.message);
+      });
+  }
+
+  function goToLogin() {
+    window.location.href = "login.html";
+  }
+</script>
+
+</body>
 </html>
