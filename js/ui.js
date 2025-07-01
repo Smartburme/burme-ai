@@ -1,36 +1,70 @@
-// js/ui.js
-
-// Example: Simple 3D floating effect on icon
-function float3D(elementId) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-
-  let angle = 0;
-  setInterval(() => {
-    angle += 0.05;
-    el.style.transform = `rotateX(${Math.sin(angle)*5}deg) rotateY(${Math.cos(angle)*5}deg)`;
-  }, 50);
-}
-
-// Theme toggle (Dark/Light) example
-function toggleTheme() {
+// Float3D effect on body based on mouse move
+(function() {
   const body = document.body;
-  if (body.style.background === 'skyblue') {
-    body.style.background = '#121212';   // Dark
-  } else {
-    body.style.background = 'skyblue';   // Light
+
+  body.style.transition = 'transform 0.1s ease';
+
+  window.addEventListener('mousemove', (e) => {
+    // Get center of viewport
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+
+    // Calculate offset from center, normalize and invert a bit for 3D tilt
+    const dx = (e.clientX - cx) / cx;
+    const dy = (e.clientY - cy) / cy;
+
+    const maxTilt = 10; // max degrees tilt
+
+    const tiltX = dy * maxTilt;
+    const tiltY = dx * maxTilt;
+
+    body.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+  });
+
+  window.addEventListener('mouseout', () => {
+    // Reset transform when mouse leaves window
+    body.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  });
+})();
+
+// Neon glow animation for title bar and buttons
+(function() {
+  const titleBar = document.querySelector('.title-bar');
+  const buttons = document.querySelectorAll('.icon-button');
+
+  function neonGlow(element) {
+    if (!element) return;
+    element.style.transition = 'box-shadow 0.6s ease-in-out, color 0.6s ease-in-out';
+    let on = false;
+    setInterval(() => {
+      if (on) {
+        element.style.boxShadow = '0 0 10px cyan, 0 0 20px cyan, 0 0 30px #00ffff';
+        element.style.color = '#00ffff';
+      } else {
+        element.style.boxShadow = 'none';
+        element.style.color = '#00cccc';
+      }
+      on = !on;
+    }, 1000);
   }
-}
 
-// Initialize UI features
-function initUI() {
-  // e.g., float the icon if any
-  // float3D('siteIcon');   // example if you have id="siteIcon"
+  neonGlow(titleBar);
+  buttons.forEach(btn => neonGlow(btn));
+})();
 
-  // Add theme toggle button logic if needed
-  // document.getElementById('themeToggleBtn').onclick = toggleTheme;
-}
+// Responsive adjustments for textarea rows based on screen size
+(function() {
+  const textarea = document.getElementById('userInput');
 
-window.onload = initUI;
-window.toggleTheme = toggleTheme;
-window.float3D = float3D;
+  function adjustTextareaRows() {
+    if (!textarea) return;
+    if (window.innerWidth < 600) {
+      textarea.rows = 3;
+    } else {
+      textarea.rows = 2;
+    }
+  }
+
+  window.addEventListener('resize', adjustTextareaRows);
+  window.addEventListener('load', adjustTextareaRows);
+})();
