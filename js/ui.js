@@ -1,21 +1,36 @@
 // js/ui.js
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Float3D animation class toggle (already handled by CSS animation on class)
-  // နောက်ထပ် animation logic ထည့်ချင်ရင် ဒီမှာရေးပါ။
+// Example: Simple 3D floating effect on icon
+function float3D(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
-  // Example: Sidebar toggle (if sidebar added)
-  const sidebarToggle = document.getElementById('sidebar-toggle');
-  const sidebar = document.getElementById('sidebar');
+  let angle = 0;
+  setInterval(() => {
+    angle += 0.05;
+    el.style.transform = `rotateX(${Math.sin(angle)*5}deg) rotateY(${Math.cos(angle)*5}deg)`;
+  }, 50);
+}
 
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-    });
+// Theme toggle (Dark/Light) example
+function toggleTheme() {
+  const body = document.body;
+  if (body.style.background === 'skyblue') {
+    body.style.background = '#121212';   // Dark
+  } else {
+    body.style.background = 'skyblue';   // Light
   }
+}
 
-  // Tab button highlight handled in chat.js already
+// Initialize UI features
+function initUI() {
+  // e.g., float the icon if any
+  // float3D('siteIcon');   // example if you have id="siteIcon"
 
-  // Responsive behavior or theme switching (optional)
-  // Add more UI interactions here as needed
-});
+  // Add theme toggle button logic if needed
+  // document.getElementById('themeToggleBtn').onclick = toggleTheme;
+}
+
+window.onload = initUI;
+window.toggleTheme = toggleTheme;
+window.float3D = float3D;
