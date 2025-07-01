@@ -1,23 +1,20 @@
-// server.js require('dotenv').config({ path: '/-1@2L/6541/76@015/.env' }); const express = require('express'); const cors = require('cors'); const fetch = require('node-fetch');
+// server.js
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs';
 
-const app = express(); const PORT = process.env.PORT || 3000; const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.use(cors()); app.use(express.json());
+app.get('/api/get-key', (req, res) => {
+  const filePath = req.query.path;
+  if (!filePath) return res.status(400).send("Missing path");
 
-app.post('/api/gemini', async (req, res) => { const { message, mode } = req.body;
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) return res.status(500).send("Key not found");
+    res.send(data);
+  });
+});
 
-if (!GEMINI_API_KEY) { return res.status(500).json({ error: 'Gemini API key not found.' }); }
-
-const endpoint = https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY};
-
-try { const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [ { parts: [ { text: message } ] } ] }) });
-
-const data = await response.json();
-const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ Gemini returned no result.";
-
-res.json({ reply: result });
-
-} catch (err) { console.error('Gemini API error:', err); res.status(500).json({ error: 'Gemini API request failed.' }); } });
-
-app.listen(PORT, () => { console.log(🚀 Server running on http://localhost:${PORT}); });
-
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
