@@ -3,7 +3,9 @@
 const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 const tagBar = document.getElementById('tagBar');
+const modeSelect = document.getElementById('modeSelect');
 
+// Message display handler
 function appendMessage(text, sender = 'bot', isImage = false) {
   const messageElem = document.createElement('div');
   messageElem.classList.add('chat-message', sender);
@@ -21,20 +23,31 @@ function appendMessage(text, sender = 'bot', isImage = false) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// User send message
-function sendMessage() {
+// Send text/image/code
+async function sendMessage() {
   const message = userInput.value.trim();
+  const mode = modeSelect.value;
+
   if (!message) return;
 
   appendMessage(message, 'user');
   userInput.value = '';
+  appendMessage("⏳ AI is thinking...", 'bot');
 
-  // TODO: Call AI API here depending on mode selected
+  try {
+    const reply = await generateGeminiReply(message, mode);
 
-  // Simulate bot reply for demo
-  setTimeout(() => {
-    appendMessage("AI: မင်္ဂလာပါ၊ သင်၏မေးခွန်းကို လက်ခံရရှိပါသည်။");
-  }, 1000);
+    // Remove "AI is thinking..." placeholder
+    const lastBotMsg = chatContainer.querySelector('.chat-message.bot:last-child');
+    if (lastBotMsg && lastBotMsg.textContent.includes("AI is thinking")) {
+      lastBotMsg.remove();
+    }
+
+    appendMessage(reply, 'bot');
+    addTag(`#${mode}`);
+  } catch (err) {
+    appendMessage("❌ Gemini API error: " + err.message, 'bot');
+  }
 }
 
 // Image upload handler
@@ -43,18 +56,22 @@ function uploadImage(event) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
-    appendMessage(e.target.result, 'user', true);
+  reader.onload = function (e) {
+    const imageData = e.target.result;
+    appendMessage(imageData, 'user', true);
 
-    // TODO: Send image to AI API for processing if needed
+    // Optional: AI reply to image
+    appendMessage("⏳ Image received. Processing...", 'bot');
+
+    // ❗ You may handle image-to-text with Gemini multimodal API here
     setTimeout(() => {
-      appendMessage("AI: ဓာတ်ပုံအား လက်ခံပြီး ဖြစ်ပါသည်။");
+      appendMessage("📷 AI: ဓာတ်ပုံအား လက်ခံပြီး ဖြစ်ပါသည်။", 'bot');
     }, 1000);
   };
   reader.readAsDataURL(file);
 }
 
-// Optional: Add tags to tagBar (example usage)
+// Tag UI helper
 function addTag(text) {
   const tag = document.createElement('div');
   tag.classList.add('tag');
@@ -62,7 +79,8 @@ function addTag(text) {
   tagBar.appendChild(tag);
 }
 
-window.sendMessage = sendMessage;     // expose to HTML onclick
+// Export for HTML
+window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
 window.appendMessage = appendMessage;
 window.addTag = addTag;
