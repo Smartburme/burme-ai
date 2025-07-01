@@ -1,31 +1,31 @@
-# webapp Structure 
+# Burme ai REAEME
 
 ```
 burme-ai/
 │
-├── index.html              ← Login Page
-├── register.html           ← Register Page
-├── reset.html              ← Reset Password Page
-├── mainchat.html           ← Main Chat UI (Text, Image, Code)
-├── about.html              ← Loads README.md (About Page)
-├── privacy.html            ← Privacy Policy & Terms
+├── index.html              ← 🔐 Login Page (Firebase/Auth.js)
+├── register.html           ← 📝 Register Page
+├── reset.html              ← 🔑 Reset Password Page
+├── mainchat.html           ← 🤖 Main Chat UI (Text, Image, Code)
+├── about.html              ← 📘 Loads README.md (About Project)
+├── privacy.html            ← 🔐 Privacy Policy & Terms
 │
-├── js/
-│   ├── auth.js             ← Login/Register/Reset Logic
-│   ├── chat.js             ← ChatBot Logic (Text/Image/Code)
-│   ├── gemini.js           ← Gemini API handler (Google Drive Key based)
-│   ├── ui.js               ← UI Components (Sidebar, 3D float)
-│   └── markdown.js         ← Load README.md into about.html
+├── js/                     ← 📁 JavaScript Files
+│   ├── auth.js             ← Auth Logic (Login/Register/Reset using Firebase)
+│   ├── chat.js             ← ChatBot Logic (Text/Image/Code switch)
+│   ├── gemini.js           ← Gemini API Calls using Google Drive Key
+│   ├── ui.js               ← UI Logic (Sidebar, Float3D, Theme)
+│   └── markdown.js         ← Loads & renders README.md (for about.html)
 │
 ├── css/
-│   └── style.css           ← All Styles (float3D + responsive)
+│   └── style.css           ← 🌈 Global Styles (Responsive, Neon UI, float3D)
 │
 ├── assets/
-│   └── icon.jpg            ← Site Icon (https://burme-ai.io/image/icon.jpg)
+│   └── icon.jpg            ← 🌐 App Icon (e.g. `burme-ai.io/image/icon.jpg`)
 │
-├── README.md               ← Project Introduction for About Page
-├── .gitignore              ← Ignore .env and other sensitive files
-├── .env                    ← (Not pushed to GitHub) API Keys (local only)
+├── .gitignore              ← Ignores `.env`, `node_modules/` etc.
+├── README.md               ← 🧾 Project Info for `about.html`
+└── README.MD               ← (optional) for GitHub display
 ```
 # Burme-ai
 
