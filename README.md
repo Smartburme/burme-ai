@@ -1,5 +1,19 @@
 # Burma AI Assistant
 
+[![Deploy to GitHub Pages](https://github.com/smartburme/burme-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/smartburme/burme-ai/actions)
+
+## လုပ်ဆောင်ချက်များ
+- စာသားများထုတ်လုပ်ခြင်း
+- ကုဒ်များရေးသားခြင်း
+- ရုပ်ပုံများဖန်တီးခြင်း
+
+## စတင်အသုံးပြုနည်း
+
+### ၁။ Local တွင် Run နည်း
+```bash
+npm install
+npm start
+```
 A multi-functional AI assistant with text, code, and image generation capabilities.
 
 ## Features
