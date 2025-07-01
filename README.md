@@ -1,65 +1,27 @@
-# Burma AI Assistant
+# webapp Structure 
 
-[![Deploy to GitHub Pages](https://github.com/smartburme/burme-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/smartburme/burme-ai/actions)
-
-## လုပ်ဆောင်ချက်များ
-- စာသားများထုတ်လုပ်ခြင်း
-- ကုဒ်များရေးသားခြင်း
-- ရုပ်ပုံများဖန်တီးခြင်း
-
-## စတင်အသုံးပြုနည်း
-
-### ၁။ Local တွင် Run နည်း
-```bash
-npm install
-npm start
-```
-A multi-functional AI assistant with text, code, and image generation capabilities.
-
-## Features
-
-- User authentication (Sign up, Login, Password reset)
-- Text generation (Blog posts, emails, stories)
-- Code generation (React components, functions)
-- Image generation (From text prompts)
-- Responsive UI with Tailwind CSS
-- Firebase backend
-- Gemini API integration
-
-## Technologies
-
-- React.js
-- Firebase (Authentication, Firestore)
-- Google Gemini API
-- Tailwind CSS
-- Font Awesome icons
-
-## Setup
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Create Firebase project and add config in `src/firebase.js`
-4. Get Gemini API key and add to `src/gemini.js`
-5. Run development server: `npm start`
-
-## Deployment
-
-1. Install Firebase CLI: `npm install -g firebase-tools`
-2. Login: `firebase login`
-3. Initialize project: `firebase init`
-4. Deploy: `firebase deploy`
-
-## Screens
-
-- Login/Signup screens
-- Reset password
-- Main sidebar with navigation
-- Text generation chat
-- Code generation chat
-- Image generation chat
-- About page
-- Privacy & Terms page
-
-## License
-
-MIT License
+burme-ai/
+│
+├── index.html              ← Login Page
+├── register.html           ← Register Page
+├── reset.html              ← Reset Password Page
+├── mainchat.html           ← Main Chat UI (Text, Image, Code)
+├── about.html              ← Loads README.md (About Page)
+├── privacy.html            ← Privacy Policy & Terms
+│
+├── js/
+│   ├── auth.js             ← Login/Register/Reset Logic
+│   ├── chat.js             ← ChatBot Logic (Text/Image/Code)
+│   ├── gemini.js           ← Gemini API handler (Google Drive Key based)
+│   ├── ui.js               ← UI Components (Sidebar, 3D float)
+│   └── markdown.js         ← Load README.md into about.html
+│
+├── css/
+│   └── style.css           ← All Styles (float3D + responsive)
+│
+├── assets/
+│   └── icon.jpg            ← Site Icon (https://burme-ai.io/image/icon.jpg)
+│
+├── README.md               ← Project Introduction for About Page
+├── .gitignore              ← Ignore .env and other sensitive files
+├── .env                    ← (Not pushed to GitHub) API Keys (local only)
