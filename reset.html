@@ -1,0 +1,81 @@
+<!-- index.html --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Burme AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon.jpg">
+</head>
+<body class="float3D">
+  <!-- Loader -->
+  <div id="loader" class="loader-container">
+    <div class="loader"></div>
+  </div>  <!-- Login Box -->  <div class="auth-box" id="login-box" style="display: none;">
+    <h2>🔐 Welcome Back</h2>
+    <input id="email" type="email" placeholder="Email Address" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <button onclick="loginUser(email.value, password.value)">Sign In</button>
+    <p>
+      No account? <a href="register.html">Sign Up</a> |
+      <a href="reset.html">Forgot password?</a>
+    </p>
+  </div>  <script>
+    // Show loader first
+    window.addEventListener('load', () => {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('login-box').style.display = 'block';
+    });
+  </script>  <script src="js/auth.js"></script>  <script src="js/ui.js"></script></body>
+</html><!-- register.html --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Burme AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon.jpg">
+</head>
+<body class="float3D">
+  <!-- Loader -->
+  <div id="loader" class="loader-container">
+    <div class="loader"></div>
+  </div>  <!-- Register Box -->  <div class="auth-box" id="register-box" style="display: none;">
+    <h2>📝 Create an Account</h2>
+    <input id="name" type="text" placeholder="Display Name" required>
+    <input id="email" type="email" placeholder="Email Address" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <button onclick="registerUser(name.value, email.value, password.value)">Create Account</button>
+    <p>
+      Already have an account? <a href="index.html">Sign In</a>
+    </p>
+  </div>  <script>
+    window.addEventListener('load', () => {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('register-box').style.display = 'block';
+    });
+  </script>  <script src="js/auth.js"></script>  <script src="js/ui.js"></script></body>
+</html><!-- reset.html --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reset Password - Burme AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/icon.jpg">
+</head>
+<body class="float3D">
+  <!-- Loader -->
+  <div id="loader" class="loader-container">
+    <div class="loader"></div>
+  </div>  <!-- Reset Box -->  <div class="auth-box" id="reset-box" style="display: none;">
+    <h2>🔑 Reset Your Password</h2>
+    <input id="email" type="email" placeholder="Enter your email" required>
+    <button onclick="resetPassword(email.value)">Send Reset Link</button>
+    <p>
+      Remembered? <a href="index.html">Back to Sign In</a>
+    </p>
+  </div>  <script>
+    window.addEventListener('load', () => {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('reset-box').style.display = 'block';
+    });
+  </script>  <script src="js/auth.js"></script>  <script src="js/ui.js"></script></body>
+</html>
