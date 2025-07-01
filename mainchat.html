@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Main Chat - Burme AI</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="mainchat-page">
+
+  <header class="header">
+    <img src="assets/icon.jpg" alt="Burme AI" class="icon-animate logo" />
+    <h1>🤖 Burme AI Chat</h1>
+    <nav>
+      <a href="about.html">About</a> |
+      <a href="privacy.html">Privacy</a> |
+      <a href="index.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="chat-container">
+    <section class="chat-tabs">
+      <button class="tab-btn active" data-tab="text">Text</button>
+      <button class="tab-btn" data-tab="image">Image</button>
+      <button class="tab-btn" data-tab="code">Code</button>
+    </section>
+
+    <section class="chat-window" id="chat-window">
+      <!-- Chat messages will appear here -->
+    </section>
+
+    <form id="chat-form" autocomplete="off">
+      <input type="text" id="chat-input" placeholder="Type your message..." required />
+      <button type="submit">Send</button>
+    </form>
+  </main>
+
+  <script src="js/chat.js"></script>
+  <script src="js/ui.js"></script>
+
+</body>
+</html>
