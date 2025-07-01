@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentTab = tab.dataset.tab;
-      chatWindow.innerHTML = ''; // Clear chat on tab switch (optional)
+      chatWindow.innerHTML = '';
     });
   });
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     msgDiv.classList.add('message', sender);
     msgDiv.textContent = text;
     chatWindow.appendChild(msgDiv);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll
+    chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
   // Form submit handler
@@ -35,13 +35,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     appendMessage('user', message);
     chatInput.value = '';
+    appendMessage('bot', '🤖 Thinking...');
 
-    appendMessage('bot', 'Processing...');
+    let response = '';
 
-    // TODO: Call Gemini API based on currentTab (text/image/code)
-    // For demo, just echo message after 1 second
-    setTimeout(() => {
-      chatWindow.lastChild.textContent = `Response for [${currentTab}]: ${message}`;
-    }, 1000);
+    try {
+      if (currentTab === 'text') {
+        response = await generateText(message);
+      } else if (currentTab === 'image') {
+        response = await generateImage(message);
+      } else if (currentTab === 'code') {
+        response = await generateCode(message);
+      }
+    } catch (err) {
+      response = '❌ Error: ' + err.message;
+    }
+
+    // Replace last bot message (Thinking...) with real response
+    const botMessages = chatWindow.querySelectorAll('.message.bot');
+    if (botMessages.length > 0) {
+      botMessages[botMessages.length - 1].textContent = response;
+    }
   });
 });
