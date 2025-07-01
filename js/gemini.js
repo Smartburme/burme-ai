@@ -1,14 +1,21 @@
 // js/gemini.js
 
-const path = '/-1@2L/6541/76@015/.env';
+const GITHUB_ENV_URL = "https://raw.githubusercontent.com/Smartburme/burme-ai.io/main/-1%402L/6541/76%40015/.env";
 let GEMINI_API_KEY = '';
 
-// Fetch Gemini API Key from backend or secure source
+// Fetch Gemini API Key from GitHub raw .env
 async function fetchGeminiKey() {
   try {
-    const response = await fetch(`/api/get-key?path=${encodeURIComponent(path)}`);
+    const response = await fetch(GITHUB_ENV_URL);
     const text = await response.text();
-    GEMINI_API_KEY = text.trim();
+
+    // Parse key=value format line
+    const match = text.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
+    if (match) {
+      GEMINI_API_KEY = match[1].trim();
+    } else {
+      console.error("🔐 GEMINI_API_KEY not found in .env");
+    }
   } catch (err) {
     console.error("🔐 Gemini API Key Load Error:", err);
   }
