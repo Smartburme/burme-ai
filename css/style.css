@@ -1,0 +1,108 @@
+/* css/style.css */
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #111;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  padding: 1rem;
+  text-align: center;
+}
+
+a {
+  color: #00ffc8;
+  text-decoration: none;
+}
+
+input, button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+  width: 80%;
+}
+
+button {
+  background: #00ffc8;
+  color: #000;
+  cursor: pointer;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1rem;
+}
+
+.chat-window {
+  background: #222;
+  padding: 1rem;
+  border-radius: 10px;
+  min-height: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  padding: 6px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+}
+
+.message.user {
+  background: #007bff;
+  color: white;
+  text-align: right;
+}
+
+.message.bot {
+  background: #444;
+  color: #fff;
+  text-align: left;
+}
+
+.tab-btn {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem;
+  background: #333;
+  border: none;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #00ffc8;
+  color: #000;
+}
+
+/* Float3D Animation */
+@keyframes float3D {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.icon-animate {
+  animation: float3D 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.icon-animate:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 10px #00ffcc);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .chat-container {
+    padding: 1rem;
+  }
+}
