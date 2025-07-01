@@ -1,60 +1,68 @@
 // js/chat.js
 
-document.addEventListener('DOMContentLoaded', () => {
-  const tabs = document.querySelectorAll('.tab-btn');
-  const chatWindow = document.getElementById('chat-window');
-  const chatForm = document.getElementById('chat-form');
-  const chatInput = document.getElementById('chat-input');
+const chatContainer = document.getElementById('chatContainer');
+const userInput = document.getElementById('userInput');
+const tagBar = document.getElementById('tagBar');
 
-  let currentTab = 'text'; // default tab
+function appendMessage(text, sender = 'bot', isImage = false) {
+  const messageElem = document.createElement('div');
+  messageElem.classList.add('chat-message', sender);
 
-  // Tab switch handler
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentTab = tab.dataset.tab;
-      chatWindow.innerHTML = '';
-    });
-  });
-
-  // Append message to chat window
-  function appendMessage(sender, text) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message', sender);
-    msgDiv.textContent = text;
-    chatWindow.appendChild(msgDiv);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+  if (isImage) {
+    const img = document.createElement('img');
+    img.src = text;
+    img.classList.add('generated-image');
+    messageElem.appendChild(img);
+  } else {
+    messageElem.textContent = text;
   }
 
-  // Form submit handler
-  chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const message = chatInput.value.trim();
-    if (!message) return;
+  chatContainer.appendChild(messageElem);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
-    appendMessage('user', message);
-    chatInput.value = '';
-    appendMessage('bot', '🤖 Thinking...');
+// User send message
+function sendMessage() {
+  const message = userInput.value.trim();
+  if (!message) return;
 
-    let response = '';
+  appendMessage(message, 'user');
+  userInput.value = '';
 
-    try {
-      if (currentTab === 'text') {
-        response = await generateText(message);
-      } else if (currentTab === 'image') {
-        response = await generateImage(message);
-      } else if (currentTab === 'code') {
-        response = await generateCode(message);
-      }
-    } catch (err) {
-      response = '❌ Error: ' + err.message;
-    }
+  // TODO: Call AI API here depending on mode selected
 
-    // Replace last bot message (Thinking...) with real response
-    const botMessages = chatWindow.querySelectorAll('.message.bot');
-    if (botMessages.length > 0) {
-      botMessages[botMessages.length - 1].textContent = response;
-    }
-  });
-});
+  // Simulate bot reply for demo
+  setTimeout(() => {
+    appendMessage("AI: မင်္ဂလာပါ၊ သင်၏မေးခွန်းကို လက်ခံရရှိပါသည်။");
+  }, 1000);
+}
+
+// Image upload handler
+function uploadImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    appendMessage(e.target.result, 'user', true);
+
+    // TODO: Send image to AI API for processing if needed
+    setTimeout(() => {
+      appendMessage("AI: ဓာတ်ပုံအား လက်ခံပြီး ဖြစ်ပါသည်။");
+    }, 1000);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Optional: Add tags to tagBar (example usage)
+function addTag(text) {
+  const tag = document.createElement('div');
+  tag.classList.add('tag');
+  tag.textContent = text;
+  tagBar.appendChild(tag);
+}
+
+window.sendMessage = sendMessage;     // expose to HTML onclick
+window.uploadImage = uploadImage;
+window.appendMessage = appendMessage;
+window.addTag = addTag;
