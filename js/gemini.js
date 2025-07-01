@@ -2,43 +2,31 @@
 
 let GEMINI_API_KEY = '';
 
-// Google Drive JSON raw key fetch
-async function loadAPIKeyFromDrive() {
-  const fileId = '18MX_0qITWC4oj90FkI_9VrrVRLZ7kwEo';
-  const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=AIzaSyXXXXX-YOUR-GOOGLE-DRIVE-API-KEY`;
+async function fetchGeminiKey() {
+  const keyFileId = '18MX_0qITWC4oj90FkI_9VrrVRLZ7kwEo';
+  const url = `https://drive.google.com/uc?export=download&id=${keyFileId}`;
 
   try {
-    const res = await fetch(url);
-    const text = await res.text();
+    const response = await fetch(url);
+    const text = await response.text();
     GEMINI_API_KEY = text.trim();
-    console.log('[Gemini] API Key Loaded');
   } catch (err) {
-    console.error('Failed to load Gemini API Key:', err);
+    console.error("🔐 Gemini API Key Load Error:", err);
   }
 }
 
-// Call Gemini Pro Text Model
-async function generateText(prompt) {
-  const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + GEMINI_API_KEY, {
+async function generateGeminiReply(message, mode = 'text') {
+  if (!GEMINI_API_KEY) await fetchGeminiKey();
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: message }] }]
+    })
   });
 
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ No response from Gemini.";
+  const data = await response.json();
+  const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  return result || "⚠ Gemini မှ ဖြေချက် မရရှိပါ။";
 }
-
-// Call Gemini Pro Vision (for Image prompt)
-async function generateImage(prompt) {
-  // Placeholder only – real image generation requires Gemini Vision or another model
-  return `🖼️ [Generated Image URL or base64 for prompt: ${prompt}]`;
-}
-
-// Call Code Model (text-style for now)
-async function generateCode(prompt) {
-  return await generateText("Write code for: " + prompt);
-}
-
-// Auto-load API key on script load
-loadAPIKeyFromDrive();
