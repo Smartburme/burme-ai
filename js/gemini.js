@@ -1,108 +1,64 @@
-<script src="js/gemini.js"></script>
-<script>
-  const chatContainer = document.getElementById('chatContainer');
-  const inputField = document.getElementById('userInput');
-  const modeSelect = document.getElementById('modeSelect');
-  const hintGroup = document.getElementById('hintGroup');
+let GEMINI_API_KEY = '';
+const LOCAL_KEY_PATH = '0/GEMINI_API_KEY.txt';
+const FALLBACK_API_KEY = '';
 
-  inputField.addEventListener('input', () => {
-    hintGroup.style.display = inputField.value.trim() ? 'none' : 'flex';
-  });
-
-  function triggerUpload() {
-    document.getElementById('imageUpload').click();
+// 🔑 Load Gemini API Key from local file
+async function fetchGeminiKey() {
+  try {
+    const res = await fetch(LOCAL_KEY_PATH);
+    const text = await res.text();
+    GEMINI_API_KEY = text.trim();
+    console.log("🔐 Gemini API Key loaded locally.");
+  } catch (err) {
+    console.error("❌ Failed to load API key:", err);
+    GEMINI_API_KEY = FALLBACK_API_KEY;
   }
+}
 
-  async function sendMessage() {
-    const text = inputField.value.trim();
-    const mode = modeSelect.value;
-    if (!text) return;
+// 🌐 Main generate function (text / image / video)
+async function generateGeminiReply(message, mode = 'text') {
+  if (!GEMINI_API_KEY) await fetchGeminiKey();
+  if (!GEMINI_API_KEY) return "❌ API key not available.";
 
-    addMessage(text, 'user');
-    inputField.value = '';
-    inputField.disabled = true;
+  let endpoint = `https://generativelanguage.googleapis.com/v1beta/models/`;
+  let requestBody = {};
 
-    const loadingId = addLoadingMessage('bot');
-
-    try {
-      const result = await generateGeminiReply(text, mode);
-
-      if (mode === 'image' && result.startsWith('http')) {
-        updateMessageImageById(loadingId, result);
-      } else {
-        updateMessageById(loadingId, result);
-      }
-    } catch (err) {
-      updateMessageById(loadingId, '❌ Error: ' + err.message);
-    } finally {
-      inputField.disabled = false;
-    }
-  }
-
-  function uploadImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      addImageMessage(e.target.result, 'user');
+  if (mode === 'image') {
+    endpoint += `gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`;
+    requestBody = {
+      contents: [{ parts: [{ text: message }] }]
     };
-    reader.readAsDataURL(file);
-
-    const fileName = file.name.replace(/\.[^/.]+$/, "");
-    const prompt = `Generate an image based on: ${fileName}`;
-    inputField.value = prompt;
-    modeSelect.value = 'image';
-    sendMessage();
+  } else if (mode === 'video') {
+    // Placeholder: Gemini does not support video gen yet
+    return "⚠ Gemini API does not support video generation yet.";
+  } else {
+    // Default text
+    endpoint += `gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    requestBody = {
+      contents: [{ parts: [{ text: message }] }]
+    };
   }
 
-  function addMessage(text, sender) {
-    const div = document.createElement('div');
-    div.className = 'chat-message ' + sender;
-    div.innerText = text;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    return div;
-  }
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
 
-  function addImageMessage(url, sender = 'bot') {
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = "Generated Image";
-    img.className = 'generated-image chat-message ' + sender;
-    chatContainer.appendChild(img);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    return img;
-  }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'API error');
 
-  function addLoadingMessage(sender = 'bot') {
-    const div = document.createElement('div');
-    div.className = 'chat-message ' + sender;
-    div.innerText = "⏳ Generating...";
-    const id = 'msg-' + Date.now();
-    div.dataset.id = id;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    return id;
-  }
-
-  function updateMessageById(id, newText) {
-    const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
-    if (msg) msg.innerText = newText;
-  }
-
-  function updateMessageImageById(id, url) {
-    const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
-    if (msg) {
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = "Generated Image";
-      img.className = 'generated-image chat-message bot';
-      msg.replaceWith(img);
+    if (mode === 'image') {
+      // If image URL or base64 returned
+      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ No image result.";
+    } else {
+      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ No reply.";
     }
+  } catch (err) {
+    console.error("Gemini API Error:", err);
+    return `❌ API error: ${err.message}`;
   }
+}
 
-  window.sendMessage = sendMessage;
-  window.uploadImage = uploadImage;
-  window.triggerUpload = triggerUpload;
-</script>
+window.generateGeminiReply = generateGeminiReply;
