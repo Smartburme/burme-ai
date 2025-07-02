@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Burme AI - API Access</title>
+  <style>
+    body {
+      background: #000;
+      color: #00ffff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    input {
+      width: 300px;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background: #222;
+      color: #00ffff;
+      font-size: 16px;
+    }
+    button {
+      width: 300px;
+      padding: 12px;
+      background: #00ffff;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>API Access</h1>
+  <input type="email" id="email" placeholder="Your Email" />
+  <input type="text" id="code" placeholder="Your API Code" />
+  <button onclick="checkAccess()">Enter</button>
+  <div class="message" id="message"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyXXXXXXX",
+      authDomain: "yourproject.firebaseapp.com",
+      databaseURL: "https://yourproject-default-rtdb.firebaseio.com",
+      projectId: "yourproject",
+      storageBucket: "yourproject.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdefghijk"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    async function checkAccess() {
+      const email = document.getElementById('email').value.trim();
+      const code = document.getElementById('code').value.trim();
+      const message = document.getElementById('message');
+      if (!email || !code) {
+        message.textContent = "❌ Please enter both Email and API Code.";
+        return;
+      }
+      const key = email.replace(/\./g, ',');
+      const snapshot = await db.ref('paidUsers/' + key).get();
+      if (!snapshot.exists()) {
+        message.textContent = "❌ User not found or unpaid.";
+        return;
+      }
+      const user = snapshot.val();
+      if (!user.paid) {
+        message.textContent = "❌ User is not marked as paid.";
+        return;
+      }
+      if (user.apiCode !== code) {
+        message.textContent = "❌ Incorrect API code.";
+        return;
+      }
+      message.style.color = '#0f0';
+      message.textContent = "✅ Access granted! You can now use the API.";
+      // ဒီနေရာမှာ API access လုပ်စေမယ့် logic ထည့်ပါ
+    }
+  </script>
+</body>
+</html>
