@@ -4,42 +4,41 @@
   <meta charset="UTF-8" />
   <title>Burme AI - Admin Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <style>
     body {
       background-color: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
-    }
-    h2 {
       text-align: center;
     }
-    .hidden { display: none; }
+    h2, h3 {
+      margin-top: 20px;
+    }
     input, button {
-      padding: 8px;
-      margin: 5px;
+      padding: 10px;
+      margin: 10px;
       border-radius: 6px;
       border: none;
       font-size: 16px;
+      width: 250px;
+      max-width: 100%;
     }
     button {
       background: #00ffff;
       color: #000;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
     }
     table {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 30px;
       border-collapse: collapse;
       background-color: #111;
     }
     th, td {
-      border: 1px solid #00ffff66;
+      border: 1px solid #00ffff55;
       padding: 10px;
-      text-align: center;
     }
     th {
       background-color: #00ffff22;
@@ -47,126 +46,104 @@
     td {
       background-color: #00000088;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
-<h2>🛡️ Admin Login</h2>
+  <h2>🛡️ Admin Control</h2>
 
-<div id="loginForm">
-  <input type="email" id="email" placeholder="admin email" /><br>
-  <input type="password" id="password" placeholder="password" /><br>
-  <button onclick="login()">Login</button>
-</div>
-
-<div id="securityCheck" class="hidden">
-  <h3>🔐 Answer Security Question</h3>
-  <p><b>Question:</b> Who are you?</p>
-  <input type="text" id="answer" placeholder="Enter correct answer" />
-  <button onclick="checkAnswer()">Enter</button>
-</div>
-
-<div id="adminPanel" class="hidden">
-  <h2>✅ Admin Panel - Code Control</h2>
-
-  <div>
-    <input type="text" id="newUser" placeholder="user@gmail.com" />
-    <input type="text" id="newCode" placeholder="code (e.g. 1234)" />
-    <input type="date" id="newEndDate" />
-    <button onclick="addUser()">➕ Add User</button>
+  <div id="securityCheck">
+    <h3>🔐 Security Check</h3>
+    <p><b>Who are you?</b></p>
+    <input type="text" id="answer" placeholder="Enter answer (e.g. admin-0000)" />
+    <br>
+    <button onclick="checkAnswer()">Enter</button>
   </div>
 
-  <table>
-    <thead>
-      <tr><th>User</th><th>Code</th><th>End Date</th><th>Actions</th></tr>
-    </thead>
-    <tbody id="userTableBody"></tbody>
-  </table>
+  <div id="adminPanel" class="hidden">
+    <h2>✅ Admin Panel - Code Control</h2>
 
-  <button onclick="logout()">🚪 Logout</button>
-</div>
+    <div>
+      <input type="text" id="newUser" placeholder="user@gmail.com" />
+      <input type="text" id="newCode" placeholder="code (e.g. 1234)" />
+      <input type="date" id="newEndDate" />
+      <br>
+      <button onclick="addUser()">➕ Add User</button>
+    </div>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
-    authDomain: "smart-burme-app.firebaseapp.com",
-    projectId: "smart-burme-app",
-    storageBucket: "smart-burme-app.appspot.com",
-    messagingSenderId: "851502425686",
-    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
-  };
-  firebase.initializeApp(firebaseConfig);
+    <table>
+      <thead>
+        <tr><th>User</th><th>Code</th><th>End Date</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
 
-  // ✅ LOGIN
-  function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("loginForm").classList.add("hidden");
-        document.getElementById("securityCheck").classList.remove("hidden");
-      })
-      .catch((err) => alert("Login failed: " + err.message));
-  }
-
-  // ✅ Security Question Check
-  function checkAnswer() {
-    const ans = document.getElementById("answer").value.trim();
-    if (ans === "admin-0000") {
-      document.getElementById("securityCheck").classList.add("hidden");
-      document.getElementById("adminPanel").classList.remove("hidden");
-      renderTable();
-    } else {
-      alert("❌ Incorrect answer");
+  <script>
+    function checkAnswer() {
+      const ans = document.getElementById("answer").value.trim();
+      if (ans === "admin-0000") {
+        document.getElementById("securityCheck").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        renderTable();
+      } else {
+        alert("❌ Incorrect answer");
+      }
     }
-  }
 
-  // ✅ LOCAL USER TABLE LOGIC
-  let users = JSON.parse(localStorage.getItem("controlUsers")) || [];
+    // ✅ Load from GitHub-hosted JSON
+    let users = [];
 
-  function renderTable() {
-    const tbody = document.getElementById("userTableBody");
-    tbody.innerHTML = "";
+    async function renderTable() {
+      try {
+        const res = await fetch("https://raw.githubusercontent.com/Smartburme/burme-ai-data/main/assets/users.json");
+        users = await res.json();
+      } catch (e) {
+        users = JSON.parse(localStorage.getItem("controlUsers")) || [];
+      }
 
-    users.forEach((u, index) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${u.email}</td>
-        <td>${u.code}</td>
-        <td>${u.endDate}</td>
-        <td><button onclick="removeUser(${index})">🗑️</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
+      const tbody = document.getElementById("userTableBody");
+      tbody.innerHTML = "";
 
-    localStorage.setItem("controlUsers", JSON.stringify(users));
-  }
+      users.forEach((u, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.email}</td>
+          <td>${u.code}</td>
+          <td>${u.endDate}</td>
+          <td><button onclick="removeUser(${i})">🗑️</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-  function addUser() {
-    const email = document.getElementById("newUser").value.trim();
-    const code = document.getElementById("newCode").value.trim();
-    const endDate = document.getElementById("newEndDate").value;
+      localStorage.setItem("controlUsers", JSON.stringify(users));
+    }
 
-    if (!email || !code || !endDate) return alert("Fill all fields");
+    function addUser() {
+      const email = document.getElementById("newUser").value.trim();
+      const code = document.getElementById("newCode").value.trim();
+      const endDate = document.getElementById("newEndDate").value;
 
-    users.push({ email, code, endDate });
-    renderTable();
+      if (!email || !code || !endDate) return alert("Fill all fields");
 
-    document.getElementById("newUser").value = "";
-    document.getElementById("newCode").value = "";
-    document.getElementById("newEndDate").value = "";
-  }
+      users.push({ email, code, endDate });
+      localStorage.setItem("controlUsers", JSON.stringify(users));
+      renderTable();
 
-  function removeUser(index) {
-    users.splice(index, 1);
-    renderTable();
-  }
+      document.getElementById("newUser").value = "";
+      document.getElementById("newCode").value = "";
+      document.getElementById("newEndDate").value = "";
+    }
 
-  function logout() {
-    firebase.auth().signOut().then(() => location.reload());
-  }
-</script>
+    function removeUser(index) {
+      users.splice(index, 1);
+      localStorage.setItem("controlUsers", JSON.stringify(users));
+      renderTable();
+    }
+  </script>
 
 </body>
 </html>
