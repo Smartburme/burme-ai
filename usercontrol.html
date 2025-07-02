@@ -2,38 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burme AI - User Control</title>
+  <title>User Control - Burme AI</title>
+  <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       background: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
       padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
-      color: #00ffff;
+      margin-bottom: 30px;
     }
     th, td {
-      border: 1px solid #00ffff;
-      padding: 8px;
-      text-align: center;
+      border: 1px solid #00ffff88;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #003333;
     }
     input, button {
-      padding: 8px;
+      padding: 6px;
       border-radius: 6px;
       border: none;
-      margin: 5px;
-      background: #222;
-      color: #00ffff;
       font-size: 14px;
+      margin-right: 10px;
+    }
+    input {
+      width: 200px;
+      background: #111;
+      color: #00ffff;
     }
     button {
       background: #00ffff;
@@ -41,105 +45,81 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .form-row {
+      margin-bottom: 20px;
+    }
+    #status {
+      height: 24px;
+      font-weight: bold;
+      color: #0f0;
+    }
   </style>
 </head>
 <body>
-  <h1>Burme AI - User Control</h1>
-
-  <table id="userTable">
+  <h1>User Control Panel</h1>
+  <div class="form-row">
+    <input type="email" id="emailInput" placeholder="User Gmail" />
+    <input type="text" id="codeInput" placeholder="4-digit Code" maxlength="4" />
+    <button onclick="addUser()">Add / Update User</button>
+  </div>
+  <div id="status"></div>
+  
+  <table>
     <thead>
       <tr>
         <th>Email</th>
-        <th>Paid</th>
-        <th>API Code</th>
+        <th>Code</th>
         <th>Actions</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="userTableBody"></tbody>
   </table>
 
-  <h3>Add / Update User</h3>
-  <input type="email" id="emailInput" placeholder="User Email" />
-  <input type="text" id="apiCodeInput" placeholder="API Code (e.g. 4444)" />
-  <label><input type="checkbox" id="paidCheckbox" /> Paid User</label>
-  <button onclick="addOrUpdateUser()">Add / Update User</button>
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
   <script>
-    // Firebase config - သင့်ကိုယ်ပိုင် config ဖြည့်ပါ
-    const firebaseConfig = {
-    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
-    authDomain: "smart-burme-app.firebaseapp.com",
-    projectId: "smart-burme-app",
-    storageBucket: "smart-burme-app.appspot.com",
-    messagingSenderId: "851502425686",
-    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
-    };
+    // Use localStorage for demo; replace with Firebase or DB for production
+    let users = JSON.parse(localStorage.getItem('paidUsers') || '{}');
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const userTableBody = document.querySelector('#userTable tbody');
-
-    function renderUsers(users) {
-      userTableBody.innerHTML = '';
-      for (const emailKey in users) {
-        const user = users[emailKey];
+    function renderTable() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+      for (const email in users) {
         const tr = document.createElement('tr');
-
         tr.innerHTML = `
-          <td>${emailKey.replace(/,/g, '.')}</td>
-          <td>${user.paid ? 'Yes' : 'No'}</td>
-          <td>${user.apiCode || ''}</td>
-          <td>
-            <button onclick="deleteUser('${emailKey}')">Delete</button>
-          </td>
+          <td>${email.replace(/,/g, '.')}</td>
+          <td>${users[email].code}</td>
+          <td><button onclick="removeUser('${email}')">Delete</button></td>
         `;
-        userTableBody.appendChild(tr);
+        tbody.appendChild(tr);
       }
     }
 
-    function loadUsers() {
-      db.ref('paidUsers').on('value', snapshot => {
-        if (snapshot.exists()) {
-          renderUsers(snapshot.val());
-        } else {
-          userTableBody.innerHTML = '<tr><td colspan="4">No users found</td></tr>';
-        }
-      });
-    }
-
-    function addOrUpdateUser() {
-      const email = document.getElementById('emailInput').value.trim();
-      const apiCode = document.getElementById('apiCodeInput').value.trim();
-      const paid = document.getElementById('paidCheckbox').checked;
-
-      if (!email || !apiCode) {
-        alert('Please enter both Email and API Code');
+    function addUser() {
+      const emailRaw = document.getElementById('emailInput').value.trim();
+      const code = document.getElementById('codeInput').value.trim();
+      if (!emailRaw || !code || code.length !== 4) {
+        alert('Please enter valid email and 4-digit code.');
         return;
       }
-      const key = email.replace(/\./g, ',');
-      db.ref('paidUsers/' + key).set({
-        paid,
-        apiCode
-      }).then(() => {
-        alert('User added/updated successfully');
-        document.getElementById('emailInput').value = '';
-        document.getElementById('apiCodeInput').value = '';
-        document.getElementById('paidCheckbox').checked = false;
-      }).catch(err => {
-        alert('Error: ' + err.message);
-      });
+      const email = emailRaw.replace(/\./g, ',');
+      users[email] = { code: code };
+      localStorage.setItem('paidUsers', JSON.stringify(users));
+      document.getElementById('status').textContent = `User ${emailRaw} saved.`;
+      renderTable();
+      document.getElementById('emailInput').value = '';
+      document.getElementById('codeInput').value = '';
     }
 
-    function deleteUser(emailKey) {
-      if (confirm('Delete this user?')) {
-        db.ref('paidUsers/' + emailKey).remove();
+    function removeUser(email) {
+      if (confirm('Are you sure to delete this user?')) {
+        delete users[email];
+        localStorage.setItem('paidUsers', JSON.stringify(users));
+        renderTable();
+        document.getElementById('status').textContent = 'User deleted.';
       }
     }
 
-    loadUsers();
+    // Initial render
+    renderTable();
   </script>
 </body>
 </html>
