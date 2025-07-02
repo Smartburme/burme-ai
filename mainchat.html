@@ -1,271 +1,234 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Burme Ai - Main Chat</title>
   <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       margin: 0;
       background: #000;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       height: 100vh;
       color: #00ffff;
-    }
+    }.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 5px #00ffff55;
+}
 
-    .title-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 15px;
-      background: #0a0a0a;
-      box-shadow: 0 0 4px #00ffff66;
-    }
+.title-text {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
 
-    .title-text {
-      flex-grow: 1;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #66ffff;
-    }
+.chat-container {
+  flex-grow: 1;
+  position: relative;
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 10px;
+}
 
-    .chat-container {
-      flex-grow: 1;
-      position: relative;
-      background: #111;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 10px;
-    }
+.hint-group {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1;
+}
 
-    .hint-group {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 30%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 1;
-    }
+.hint-box {
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid #00ffff33;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  color: #ccc;
+  text-align: center;
+}
 
-    .hint-box {
-      background: rgba(0, 255, 255, 0.03);
-      border: 1px solid #00ffff22;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 14px;
-      color: #ccc;
-      box-shadow: 0 0 2px #00ffff22;
-      text-align: center;
-    }
+.hint-box strong {
+  color: #00ffff;
+}
 
-    .hint-box strong {
-      color: #44ffff;
-    }
+.chat-message {
+  background: rgba(0, 255, 255, 0.05);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 90%;
+}
 
-    .chat-message {
-      background: rgba(0, 255, 255, 0.05);
-      color: white;
-      padding: 10px;
-      border-radius: 10px;
-      margin: 5px 0;
-      max-width: 90%;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
+.chat-message.user {
+  align-self: flex-end;
+  background: rgba(0, 255, 255, 0.4);
+}
 
-    .chat-message.user {
-      align-self: flex-end;
-      background: rgba(0, 255, 255, 0.4);
-    }
+.chat-message.bot {
+  align-self: flex-start;
+  border-left: 3px solid #00ffff66;
+}
 
-    .chat-message.bot {
-      align-self: flex-start;
-      border-left: 3px solid #00ffff55;
-    }
+.input-bar {
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  box-shadow: 0 -2px 5px #00ffff44;
+  padding: 8px;
+}
 
-    .input-bar {
-      display: flex;
-      flex-direction: column;
-      background: #000;
-      box-shadow: 0 -1px 5px #00ffff22;
-      padding: 8px;
-    }
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    .input-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+.input-bar textarea {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  resize: none;
+  background: #222;
+  color: #00ffff;
+}
 
-    textarea#userInput {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      font-size: 14px;
-      resize: none;
-      background: #222;
-      color: #66ffff;
-      height: 50px;
-      min-height: 50px;
-    }
+.icon-button, select {
+  font-size: 14px;
+  background: #00ffff;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    button.icon-button {
-      font-size: 16px;
-      background: #00ffff33;
-      color: #fff;
-      border: 1px solid #00ffff55;
-      border-radius: 8px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-      user-select: none;
-    }
+.tag-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
 
-    button.icon-button:hover {
-      background: #00ffff55;
-    }
+.tag {
+  background: #000;
+  color: #00ffff;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+}
 
-    .tag-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 5px;
-    }
+img.generated-image {
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 10px 0;
+  border: 1px solid #00ffff22;
+}
 
-    .tag {
-      background: #000;
-      color: #44ffff;
-      padding: 3px 8px;
-      border-radius: 8px;
-      font-size: 12px;
-      box-shadow: 0 0 2px #00ffff22;
-    }
+@media (max-width: 600px) {
+  .hint-group {
+    width: 80%;
+  }
+}
 
-    img.generated-image {
-      max-width: 100%;
-      border-radius: 10px;
-      margin: 10px 0;
-      border: 1px solid #00ffff22;
-      align-self: flex-start;
-    }
-
-    @media (max-width: 600px) {
-      .hint-group {
-        width: 80%;
-      }
-    }
   </style>
 </head>
 <body>
-
-  <!-- Title Bar -->
   <div class="title-bar">
     <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
     <img src="assets/icon.jpg" alt="icon" width="30" height="30" style="border-radius: 50%;" />
-  </div>
-
-  <!-- Chat Body -->
-  <div class="chat-container" id="chatContainer">
+  </div>  <div class="chat-container" id="chatContainer">
     <div class="hint-group" id="hintGroup">
-      <div class="hint-box"><strong>Text:</strong> 💬 Ask me anything or start a conversation.</div>
-      <div class="hint-box"><strong>Image:</strong> 🖼 Describe an image you want me to generate.</div>
-      <div class="hint-box"><strong>Code:</strong> 💻 Request a code snippet or small project.</div>
+      <div class="hint-box"><strong>Text:</strong> 💬 Ask anything in natural language.</div>
+      <div class="hint-box"><strong>Image:</strong> 🖼 Describe an image to generate.</div>
+      <div class="hint-box"><strong>Video:</strong> 🎥 Video generation not yet available.</div>
     </div>
-  </div>
-
-  <!-- Input -->
-  <div class="input-bar">
+  </div>  <div class="input-bar">
     <div class="input-row">
-      <textarea id="userInput" placeholder="Type your message..."></textarea>
+      <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
+      <select id="modeSelect">
+        <option value="text">Text</option>
+        <option value="image">Image</option>
+        <option value="video">Video</option>
+      </select>
       <button class="icon-button" onclick="triggerUpload()">⚓</button>
       <button class="icon-button" onclick="sendMessage()">ᐷ</button>
     </div>
-    <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)" />
+    <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)" />
     <div class="tag-bar" id="tagBar"></div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="js/gemini.js"></script>
-  <script>
-    // References
+  </div>  <script src="js/gemini.js"></script>  <script>
     const chatContainer = document.getElementById('chatContainer');
     const inputField = document.getElementById('userInput');
+    const modeSelect = document.getElementById('modeSelect');
     const hintGroup = document.getElementById('hintGroup');
 
-    // Show/hide hints
     inputField.addEventListener('input', () => {
       hintGroup.style.display = inputField.value.trim() ? 'none' : 'flex';
     });
 
-    // Trigger file input
     function triggerUpload() {
       document.getElementById('imageUpload').click();
     }
 
-    // Send text message
     async function sendMessage() {
-      const userText = inputField.value.trim();
-      if (!userText) return;
+      const text = inputField.value.trim();
+      const mode = modeSelect.value;
+      if (!text) return;
 
-      addMessage(userText, 'user');
+      addMessage(text, 'user');
       inputField.value = '';
       inputField.disabled = true;
 
-      // Add loading message
       const loadingId = addLoadingMessage('bot');
 
       try {
-        const reply = await generateGeminiReply(userText, 'text');
-        updateMessageById(loadingId, reply);
+        const result = await generateGeminiReply(text, mode);
+        if (mode === 'image' && result.startsWith('http')) {
+          updateMessageImageById(loadingId, result);
+        } else {
+          updateMessageById(loadingId, result);
+        }
       } catch (err) {
-        updateMessageById(loadingId, "❌ Gemini API error: " + err.message);
+        updateMessageById(loadingId, '❌ Error: ' + err.message);
       } finally {
         inputField.disabled = false;
       }
     }
 
-    // Upload image & generate image from Gemini
-    async function uploadImage(event) {
+    function uploadImage(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const fileName = file.name.replace(/\.[^/.]+$/, "");
-      const prompt = `Generate an image based on: ${fileName}`;
-
-      // Show user preview
       const reader = new FileReader();
       reader.onload = e => {
         addImageMessage(e.target.result, 'user');
       };
       reader.readAsDataURL(file);
 
-      // Add loading message
-      const loadingId = addLoadingMessage('bot');
-
-      try {
-        const imageUrl = await generateGeminiReply(prompt, 'image');
-        if (imageUrl && imageUrl.startsWith('http')) {
-          updateMessageImageById(loadingId, imageUrl);
-        } else {
-          updateMessageById(loadingId, "⚠️ Image not generated.");
-        }
-      } catch (err) {
-        updateMessageById(loadingId, '❌ Image generation error: ' + err.message);
-      }
+      const fileName = file.name.replace(/\.[^/.]+$/, "");
+      inputField.value = `Generate an image based on: ${fileName}`;
+      modeSelect.value = 'image';
+      sendMessage();
     }
 
-    // Add text message to chat
     function addMessage(text, sender) {
       const div = document.createElement('div');
       div.className = 'chat-message ' + sender;
@@ -275,7 +238,6 @@
       return div;
     }
 
-    // Add image message to chat
     function addImageMessage(url, sender = 'bot') {
       const img = document.createElement('img');
       img.src = url;
@@ -286,11 +248,10 @@
       return img;
     }
 
-    // Add loading message
     function addLoadingMessage(sender = 'bot') {
       const div = document.createElement('div');
       div.className = 'chat-message ' + sender;
-      div.innerText = "⏳ Thinking...";
+      div.innerText = "⏳ Generating...";
       const id = 'msg-' + Date.now();
       div.dataset.id = id;
       chatContainer.appendChild(div);
@@ -298,34 +259,24 @@
       return id;
     }
 
-    // Update loading message text
     function updateMessageById(id, newText) {
-      const target = [...chatContainer.children].find(el => el.dataset?.id === id);
-      if (target) target.innerText = newText;
+      const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
+      if (msg) msg.innerText = newText;
     }
 
-    // Replace loading message with image
-    function updateMessageImageById(id, imageUrl) {
-      const old = [...chatContainer.children].find(el => el.dataset?.id === id);
-      if (old) {
+    function updateMessageImageById(id, url) {
+      const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
+      if (msg) {
         const img = document.createElement('img');
-        img.src = imageUrl;
+        img.src = url;
         img.alt = "Generated Image";
         img.className = 'generated-image chat-message bot';
-        old.replaceWith(img);
+        msg.replaceWith(img);
       }
     }
 
-    // Expose to global scope for button onclick usage
     window.sendMessage = sendMessage;
     window.uploadImage = uploadImage;
     window.triggerUpload = triggerUpload;
-
-    // On load
-    window.onload = () => {
-      hintGroup.style.display = 'flex';
-    };
-  </script>
-
-</body>
+  </script></body>
 </html>
