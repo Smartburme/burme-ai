@@ -1,4 +1,4 @@
-let GEMINI_API_KEY = 'AIzaSyBy16Ws2nQkYz0nijJ_IuBgeyYjCbXjtUE'; // ✅ သင့် Key
+let GEMINI_API_KEY = 'AIzaSyC-rFRcdLE5-gd4gm5zM25lahfFMflx3Vc'; // ✅ သင့် Key
 
 // Main Gemini Reply Generator
 async function generateGeminiReply(prompt, mode = 'text') {
