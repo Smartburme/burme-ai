@@ -1,52 +1,73 @@
-let GEMINI_API_KEY = '';
+// gemini.js
 
-async function loadGeminiKeyFromFile() {
-  try {
-    const [fileHandle] = await window.showOpenFilePicker({
-      startIn: 'documents',
-      types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }],
-      multiple: false
-    });
-    const file = await fileHandle.getFile();
-    const text = await file.text();
-    GEMINI_API_KEY = text.trim();
-    console.log("✅ Gemini API Key loaded from file");
-  } catch (e) {
-    console.warn("⚠️ Failed to load Gemini API key:", e);
-  }
+let GEMINI_API_KEY = ''; const FALLBACK_API_KEY = 'YOUR_FALLBACK_KEY_HERE'; // optional
+
+// Load Gemini API Key from GitHub-hosted .env file async function fetchGeminiKey() { try { const response = await fetch("https://raw.githubusercontent.com/Smartburme/burme-ai.io/main/assets/.env"); const text = await response.text();
+
+const match = text.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
+if (match) {
+  GEMINI_API_KEY = match[1].trim();
+  console.log("✅ GEMINI API Key loaded from .env");
+} else {
+  console.warn("⚠️ GEMINI_API_KEY not found. Using fallback.");
+  GEMINI_API_KEY = FALLBACK_API_KEY;
 }
 
-async function generateGeminiReply(message, mode = 'text') {
-  if (!GEMINI_API_KEY) await loadGeminiKeyFromFile();
-  if (!GEMINI_API_KEY) return "❌ Gemini API key မရှိပါ။";
+} catch (error) { console.error("❌ Failed to fetch Gemini API Key:", error); GEMINI_API_KEY = FALLBACK_API_KEY; } }
 
-  const model = (mode === 'image' || mode === 'video') ? mode : 'gemini-pro';
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+// Core Generate Function async function generateGeminiReply(prompt, mode = 'text') { if (!GEMINI_API_KEY) await fetchGeminiKey(); if (!GEMINI_API_KEY) return "❌ Gemini API Key is missing.";
 
-  const requestBody = {
-    contents: [{ parts: [{ text: message }] }]
-  };
+try { let endpoint = "https://generativelanguage.googleapis.com/v1beta/models/"; let requestBody = {};
 
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
-    });
+switch (mode) {
+  case 'text':
+  case 'code':
+  case 'plan':
+  case 'project':
+    endpoint += "gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+    requestBody = {
+      contents: [
+        {
+          parts: [
+            { text: prompt }
+          ]
+        }
+      ]
+    };
+    break;
 
-    const data = await res.json();
+  case 'image':
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/image-generator:generateContent?key=${GEMINI_API_KEY}`;
+    requestBody = {
+      prompt: prompt
+    };
+    break;
 
-    if (mode === 'image') {
-      return data?.candidates?.[0]?.content?.imageUri || "⚠ Image not returned.";
-    } else if (mode === 'video') {
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ Video info missing.";
-    } else {
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ No text response.";
-    }
-  } catch (err) {
-    console.error("❌ Gemini API error:", err);
-    return "❌ Gemini API error.";
-  }
+  case 'video':
+    // Gemini doesn't support video generation directly. You can integrate with other APIs.
+    return "⚠️ Video generation is not supported yet in Gemini. Use a third-party API.";
+
+  default:
+    return "❌ Invalid generation mode.";
 }
 
-window.generateGeminiReply = generateGeminiReply;
+const res = await fetch(endpoint, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(requestBody)
+});
+
+if (!res.ok) throw new Error(`Gemini API Error: ${res.status}`);
+
+const data = await res.json();
+
+if (mode === 'image') {
+  return data?.candidates?.[0]?.content?.imageUri || "⚠️ Image not returned.";
+} else {
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response.";
+}
+
+} catch (error) { console.error("❌ Gemini API error:", error); return "❌ Gemini API error occurred."; } }
+
+// Expose globally window.generateGeminiReply = generateGeminiReply;
+
