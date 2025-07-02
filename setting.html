@@ -1,72 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setting - Burme Ai</title>
-  <link rel="icon" href="assets/icon.jpg">
+  <meta charset="UTF-8" />
+  <title>Burme AI - Setting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      background: #111;
+      background-color: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
     }
-    h1 {
-      margin-bottom: 10px;
-    }
-    label, input, button {
-      display: block;
-      margin-top: 10px;
-      width: 100%;
+    h2, h3 {
+      text-align: center;
     }
     input, button {
+      width: 100%;
       padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #00ffff;
-      background: #222;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 18px;
+      background: #111;
       color: #00ffff;
     }
-    button:hover {
+    button {
       background: #00ffff;
       color: #000;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .info-box {
+      background: #111;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Setting</h1>
 
-  <h2>App Information</h2>
-  <p>Burme AI helps with generating and interacting with various media like text, images, and more.</p>
+  <h2>About Burme AI</h2>
+  <div class="info-box">
+    <p>Burme AI assistant is your smart Burmese language AI chatbot.</p>
+  </div>
 
-  <h2>User Information</h2>
-  <label for="email">Enter your Gmail:</label>
-  <input type="email" id="email" placeholder="user@example.com">
+  <h3>Admin Info</h3>
+  <div class="info-box">
+    <p>Name: Mg Aung Myo Kyaw</p>
+    <p>Country: Naypyitaw, Myanmar</p>
+    <p>Email: wayne.mm.92@gmail.com</p>
+    <p>Phone: 09677740154</p>
+  </div>
 
-  <label for="code">Enter your Code:</label>
-  <input type="text" id="code" maxlength="4" placeholder="Enter 4-digit code">
-
-  <button onclick="goToUserControl()">Proceed to User Control</button>
+  <h3>Access API</h3>
+  <input type="email" id="emailInput" placeholder="Enter your Gmail" />
+  <input type="text" id="codeInput" placeholder="Enter your code" />
+  <button onclick="checkAccess()">Go to API</button>
 
   <script>
-    // Redirect to usercontrol.html for validation
-    function goToUserControl() {
-      const email = document.getElementById('email').value.trim();
-      const code = document.getElementById('code').value.trim();
+    function checkAccess() {
+      const email = document.getElementById('emailInput').value.trim();
+      const code = document.getElementById('codeInput').value.trim();
 
       if (!email || !code) {
-        alert("Please fill in both email and code.");
+        alert("Please fill both email and code.");
         return;
       }
 
-      // Save email and code to localStorage for validation in usercontrol.html
-      localStorage.setItem("email", email);
-      localStorage.setItem("code", code);
+      // Get users from localStorage (from usercontrol.html)
+      const users = JSON.parse(localStorage.getItem("controlUsers")) || [];
 
-      // Redirect to usercontrol.html
-      window.location.href = "usercontrol.html";
+      const validUser = users.find(u => u.email === email && u.code === code);
+      if (validUser) {
+        alert("✅ Access granted! Redirecting to API page...");
+        window.location.href = "api.html";
+      } else {
+        alert("❌ Invalid email or code.");
+      }
     }
   </script>
+
 </body>
 </html>
