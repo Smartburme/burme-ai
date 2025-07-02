@@ -2,143 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Burme AI - API Upload</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>API Access - Burme AI</title>
   <style>
     body {
-      background: #000;
-      color: #0ff;
+      background-color: #000;
+      color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
-      max-width: 500px;
-      margin: auto;
     }
-    h1, h2 {
+    h2 {
       text-align: center;
       margin-bottom: 20px;
     }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    label {
-      font-weight: bold;
-    }
-    input[type="email"], input[type="text"] {
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      background: #111;
-      color: #0ff;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px;
-      background: #0ff;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .error {
-      color: #f66;
-      margin-top: 10px;
-      text-align: center;
-    }
-    .success {
-      color: #6f6;
-      margin-top: 10px;
-      text-align: center;
-    }
-    .api-content {
-      margin-top: 20px;
-      padding: 15px;
-      background: #111;
-      border-radius: 8px;
-      word-break: break-all;
-    }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
-      authDomain: "smart-burme-app.firebaseapp.com",
-      projectId: "smart-burme-app",
-      storageBucket: "smart-burme-app.appspot.com",
-      messagingSenderId: "851502425686",
-      appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    window.checkAccess = async function(event) {
-      event.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const code = document.getElementById('code').value.trim();
-      const errorDiv = document.getElementById('errorMsg');
-      const successDiv = document.getElementById('successMsg');
-      const apiContentDiv = document.getElementById('apiContent');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-      apiContentDiv.textContent = '';
-
-      if (!email || !code) {
-        errorDiv.textContent = 'Please enter both email and code.';
-        return;
-      }
-
-      try {
-        const key = email.replace(/\./g, ',');
-        const snapshot = await get(ref(db, 'paidUsers/' + key));
-        if (!snapshot.exists()) {
-          errorDiv.textContent = 'User not found.';
-          return;
-        }
-        const userData = snapshot.val();
-        if (!userData.paid) {
-          errorDiv.textContent = 'Payment not confirmed.';
-          return;
-        }
-        if (userData.apiCode !== code) {
-          errorDiv.textContent = 'Invalid code.';
-          return;
-        }
-        // Success
-        successDiv.textContent = 'Access granted. Here is your API key and upload info:';
-        // Show API key or upload instructions here:
-        apiContentDiv.innerHTML = `
-          <strong>API Key:</strong><br />
-          AIzaSyBy16Ws2nQkYz0nijJ_IuBgeyYjCbXjtUE<br/><br/>
-          <strong>Upload API Endpoint:</strong><br />
-          https://your-upload-api.example.com/upload<br/><br/>
-          <strong>Instructions:</strong><br />
-          Use the API key above to authenticate your requests.<br/>
-          Contact admin if you have any issues.
-        `;
-      } catch (error) {
-        errorDiv.textContent = 'Error checking access: ' + error.message;
-      }
-    };
-  </script>
 </head>
 <body>
-  <h1>Burme AI - API Access</h1>
-  <form onsubmit="checkAccess(event)">
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Your registered email" required />
-    <label for="code">Access Code (4 digits)</label>
-    <input type="text" id="code" maxlength="4" placeholder="Enter your code" required />
-    <button type="submit">Check Access</button>
-  </form>
-  <div id="errorMsg" class="error"></div>
-  <div id="successMsg" class="success"></div>
-  <div id="apiContent" class="api-content"></div>
+
+  <h2>Upload API Key</h2>
+
+  <p>Here you can upload and manage your API keys.</p>
+
+  <!-- Your upload UI goes here -->
+
 </body>
 </html>
