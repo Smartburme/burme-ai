@@ -2,133 +2,171 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Burme AI - Admin Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>User Control - Admin Login</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <style>
     body {
-      background: #000;
+      background-color: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-box {
-      background: #111;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #00ffffaa;
-      width: 320px;
     }
     h2 {
       text-align: center;
-      margin-bottom: 20px;
     }
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
+    .hidden { display: none; }
+    input, button {
+      padding: 8px;
+      margin: 5px;
       border-radius: 6px;
       border: none;
-      background: #222;
-      color: #00ffff;
       font-size: 16px;
     }
     button {
-      width: 100%;
-      padding: 10px;
       background: #00ffff;
-      border: none;
-      border-radius: 6px;
       color: #000;
-      font-weight: bold;
-      font-size: 16px;
       cursor: pointer;
+      font-weight: bold;
     }
-    button:hover {
-      background: #00dddd;
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background-color: #111;
     }
-    .error-msg {
-      color: #ff5555;
-      margin-bottom: 15px;
+    th, td {
+      border: 1px solid #00ffff66;
+      padding: 10px;
       text-align: center;
+    }
+    th {
+      background-color: #00ffff22;
+    }
+    td {
+      background-color: #00000088;
     }
   </style>
 </head>
 <body>
 
-  <div class="login-box">
-    <h2>Admin Login</h2>
-    <div class="error-msg" id="errorMsg"></div>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <input type="text" id="securityAnswer" placeholder="Who are you?" required />
-    <button onclick="handleLogin()">Login</button>
+<h2>🛡️ Admin Login</h2>
+
+<div id="loginForm">
+  <input type="email" id="email" placeholder="admin email" /><br>
+  <input type="password" id="password" placeholder="password" /><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<div id="securityCheck" class="hidden">
+  <h3>🔐 Answer Security Question</h3>
+  <p><b>Question:</b> Who are you?</p>
+  <input type="text" id="answer" placeholder="Enter correct answer" />
+  <button onclick="checkAnswer()">Enter</button>
+</div>
+
+<div id="adminPanel" class="hidden">
+  <h2>✅ Admin Panel - Code Control</h2>
+
+  <div>
+    <input type="text" id="newUser" placeholder="user@gmail.com" />
+    <input type="text" id="newCode" placeholder="code (e.g. 1234)" />
+    <input type="date" id="newEndDate" />
+    <button onclick="addUser()">➕ Add User</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <table>
+    <thead>
+      <tr><th>User</th><th>Code</th><th>End Date</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
 
-  <script>
-    // Your Firebase configuration here
-    const firebaseConfig = {
-      apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
-      authDomain: "smart-burme-app.firebaseapp.com",
-      projectId: "smart-burme-app",
-      storageBucket: "smart-burme-app.appspot.com",
-      messagingSenderId: "851502425686",
-      appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
-    };
+  <button onclick="logout()">🚪 Logout</button>
+</div>
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
+    authDomain: "smart-burme-app.firebaseapp.com",
+    projectId: "smart-burme-app",
+    storageBucket: "smart-burme-app.appspot.com",
+    messagingSenderId: "851502425686",
+    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-    const errorMsg = document.getElementById('errorMsg');
+  // ✅ LOGIN
+  function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-    async function handleLogin() {
-      errorMsg.textContent = '';
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("securityCheck").classList.remove("hidden");
+      })
+      .catch((err) => alert("Login failed: " + err.message));
+  }
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const answer = document.getElementById('securityAnswer').value.trim();
-
-      if (!email || !password || !answer) {
-        errorMsg.textContent = 'Please fill all fields.';
-        return;
-      }
-
-      if (answer.toLowerCase() !== 'admin-0000') {
-        errorMsg.textContent = 'Security answer is incorrect.';
-        return;
-      }
-
-      try {
-        // Firebase sign-in
-        await auth.signInWithEmailAndPassword(email, password);
-
-        // Optionally check if this email is authorized admin (e.g. via Realtime DB)
-        // For simplicity, allow only specific email:
-        if (email.toLowerCase() !== 'wayne.mm.92@gmail.com') {
-          errorMsg.textContent = 'Access denied: Not admin email.';
-          await auth.signOut();
-          return;
-        }
-
-        // Login success, redirect to api.html
-        window.location.href = 'api.html';
-
-      } catch (err) {
-        errorMsg.textContent = err.message;
-      }
+  // ✅ Security Question Check
+  function checkAnswer() {
+    const ans = document.getElementById("answer").value.trim();
+    if (ans === "admin-0000") {
+      document.getElementById("securityCheck").classList.add("hidden");
+      document.getElementById("adminPanel").classList.remove("hidden");
+      renderTable();
+    } else {
+      alert("❌ Incorrect answer");
     }
-  </script>
+  }
+
+  // ✅ LOCAL USER TABLE LOGIC
+  let users = JSON.parse(localStorage.getItem("controlUsers")) || [];
+
+  function renderTable() {
+    const tbody = document.getElementById("userTableBody");
+    tbody.innerHTML = "";
+
+    users.forEach((u, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.email}</td>
+        <td>${u.code}</td>
+        <td>${u.endDate}</td>
+        <td><button onclick="removeUser(${index})">🗑️</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    localStorage.setItem("controlUsers", JSON.stringify(users));
+  }
+
+  function addUser() {
+    const email = document.getElementById("newUser").value.trim();
+    const code = document.getElementById("newCode").value.trim();
+    const endDate = document.getElementById("newEndDate").value;
+
+    if (!email || !code || !endDate) return alert("Fill all fields");
+
+    users.push({ email, code, endDate });
+    renderTable();
+
+    document.getElementById("newUser").value = "";
+    document.getElementById("newCode").value = "";
+    document.getElementById("newEndDate").value = "";
+  }
+
+  function removeUser(index) {
+    users.splice(index, 1);
+    renderTable();
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => location.reload());
+  }
+</script>
 
 </body>
 </html>
