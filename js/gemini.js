@@ -1,42 +1,10 @@
-// gemini.js
+let GEMINI_API_KEY = 'AIzaSyBy16Ws2nQkYz0nijJ_IuBgeyYjCbXjtUE'; // ✅ သင့် Key
 
-let GEMINI_API_KEY = '';
-
-// Load Gemini API key from localStorage
-function loadGeminiKey() {
-  const key = localStorage.getItem('GEMINI_API_KEY');
-  if (key && key.trim() !== '') {
-    GEMINI_API_KEY = key.trim();
-    console.log('✅ Gemini API Key loaded from localStorage');
-    return true;
-  } else {
-    console.warn('⚠️ Gemini API Key not found in localStorage.');
-    return false;
-  }
-}
-
-// Save Gemini API key to localStorage
-function saveGeminiKey(key) {
-  if (key && key.trim() !== '') {
-    localStorage.setItem('GEMINI_API_KEY', key.trim());
-    GEMINI_API_KEY = key.trim();
-    console.log('✅ Gemini API Key saved to localStorage');
-    return true;
-  }
-  return false;
-}
-
-// Main Gemini API call function
+// Main Gemini Reply Generator
 async function generateGeminiReply(prompt, mode = 'text') {
-  if (!GEMINI_API_KEY) {
-    const loaded = loadGeminiKey();
-    if (!loaded) {
-      return "❌ Gemini API Key missing. Please set it in Settings.";
-    }
-  }
-
+  // API Endpoint သတ်မှတ်
   let endpoint = '';
-  let requestBody = {};
+  let body = {};
 
   switch (mode) {
     case 'text':
@@ -44,53 +12,51 @@ async function generateGeminiReply(prompt, mode = 'text') {
     case 'plan':
     case 'project':
       endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-      requestBody = {
-        prompt: {
-          text: prompt
-        }
+      body = {
+        contents: [{ parts: [{ text: prompt }] }]
       };
       break;
 
     case 'image':
       endpoint = `https://generativelanguage.googleapis.com/v1beta/models/image-generator:generateContent?key=${GEMINI_API_KEY}`;
-      requestBody = { prompt: prompt };
+      body = { prompt: prompt };
       break;
 
     case 'video':
-      return "⚠️ Gemini API does not support video generation currently.";
-
+      return "⚠️ Gemini မသုံးနိုင်သေးတဲ့ Video mode ဖြစ်ပါတယ်။";
+    
     default:
-      return `❌ Unsupported mode: ${mode}`;
+      return `❌ မသိတဲ့ mode: "${mode}"`;
   }
 
   try {
-    const response = await fetch(endpoint, {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(body)
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Gemini API error ${response.status}:`, errorText);
-      return `❌ Gemini API error (${response.status}): ${errorText}`;
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('❌ Gemini Error', res.status, errorText);
+      return `❌ Gemini API Error (${res.status}): ${errorText}`;
     }
 
-    const data = await response.json();
-    console.log('✅ Gemini API response:', data);
+    const data = await res.json();
+    console.log('✅ Gemini Response:', data);
 
+    // Response ဖော်ပြ
     if (mode === 'image') {
-      return data?.candidates?.[0]?.content?.imageUri || "⚠️ No image returned.";
+      return data?.candidates?.[0]?.content?.imageUri || "⚠️ Image URL မရရှိပါ";
     } else {
-      return data?.candidates?.[0]?.content?.text || "⚠️ No text returned.";
+      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ Response မရရှိပါ";
     }
-  } catch (error) {
-    console.error('❌ Gemini API error:', error);
-    return "❌ Gemini API error: " + error.message;
+
+  } catch (err) {
+    console.error('❌ Gemini Network Error:', err);
+    return '❌ Gemini Network Error: ' + err.message;
   }
 }
 
-// Export functions for global usage
-window.loadGeminiKey = loadGeminiKey;
-window.saveGeminiKey = saveGeminiKey;
+// Global Export
 window.generateGeminiReply = generateGeminiReply;
