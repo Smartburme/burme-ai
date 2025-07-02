@@ -1,168 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>User Control - Admin Only</title>
-<style>
-  body { background: #000; color: #0ff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-  h1 { text-align: center; }
-  form { max-width: 400px; margin: 20px auto; }
-  label, input { display: block; width: 100%; margin-bottom: 10px; }
-  input { padding: 8px; border-radius: 6px; border: none; }
-  button { background: #0ff; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
-  .error { color: #f66; margin-top: 10px; text-align: center; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { border: 1px solid #0ff; padding: 8px; text-align: center; }
-</style>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-  // Firebase config (သင့်အတိုင်းပြင်ပေးပါ)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
-    authDomain: "smart-burme-app.firebaseapp.com",
-    projectId: "smart-burme-app",
-    storageBucket: "smart-burme-app.appspot.com",
-    messagingSenderId: "851502425686",
-    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // Admin email သတ်မှတ်ချက်
-  const adminEmail = "wayne.mm.92@gmail.com";
-
-  // Login form submit handler
-  window.handleLogin = async function(e) {
-    e.preventDefault();
-    const emailInput = document.getElementById('email').value.trim();
-    const codeInput = document.getElementById('code').value.trim();
-
-    if(emailInput !== adminEmail) {
-      showError("❌ You are not authorized to access this page.");
-      return;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Control - Admin Login</title>
+  <style>
+    body {
+      background: #000;
+      color: #00ffff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-
-    const key = emailInput.replace(/\./g, ',');
-    const userRef = ref(db, 'paidUsers/' + key);
-    const snapshot = await get(userRef);
-
-    if(!snapshot.exists()) {
-      showError("❌ User not found.");
-      return;
+    .login-box {
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00ffffaa;
+      width: 320px;
     }
-
-    const userData = snapshot.val();
-    if(userData.apiCode !== codeInput) {
-      showError("❌ Invalid code.");
-      return;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
     }
-
-    if(!userData.paid) {
-      showError("❌ Payment not confirmed.");
-      return;
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: none;
+      background: #222;
+      color: #00ffff;
+      font-size: 16px;
     }
-
-    // Access granted, show user control panel
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('controlPanel').style.display = 'block';
-    clearError();
-    loadUsers();
-  };
-
-  // Show error message
-  function showError(msg) {
-    document.getElementById('errorMsg').textContent = msg;
-  }
-
-  function clearError() {
-    document.getElementById('errorMsg').textContent = '';
-  }
-
-  // Load users list from Firebase and display in table
-  async function loadUsers() {
-    const usersRef = ref(db, 'paidUsers');
-    const snapshot = await get(usersRef);
-    if(!snapshot.exists()) return;
-
-    const users = snapshot.val();
-    const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = '';
-
-    for(const key in users) {
-      const u = users[key];
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${key.replace(/,/g, '.')}</td>
-        <td>${u.apiCode || ''}</td>
-        <td>${u.paid ? 'Yes' : 'No'}</td>
-        <td><button onclick="deleteUser('${key}')">Delete</button></td>
-      `;
-      tbody.appendChild(tr);
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00ffff;
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
     }
-  }
-
-  // Delete user function
-  window.deleteUser = async function(key) {
-    if(!confirm(`Delete user ${key.replace(/,/g, '.')}?`)) return;
-    await set(ref(db, 'paidUsers/' + key), null);
-    loadUsers();
-  };
-
-  // Add user form submit
-  window.handleAddUser = async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('newEmail').value.trim();
-    const code = document.getElementById('newCode').value.trim();
-    const paid = document.getElementById('newPaid').checked;
-
-    if(!email || !code) {
-      alert("Please enter email and code.");
-      return;
+    button:hover {
+      background: #00dddd;
     }
-
-    const key = email.replace(/\./g, ',');
-    await set(ref(db, 'paidUsers/' + key), { apiCode: code, paid: paid });
-    loadUsers();
-    e.target.reset();
-  };
-</script>
+    .error-msg {
+      color: #ff5555;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <h1>User Control Panel (Admin Only)</h1>
 
-  <!-- Login Form -->
-  <form id="loginForm" onsubmit="handleLogin(event)">
-    <label>Email:</label>
-    <input type="email" id="email" required placeholder="Enter your admin email" />
-    <label>Access Code:</label>
-    <input type="text" id="code" required maxlength="4" placeholder="Enter 4-digit code" />
-    <button type="submit">Login</button>
-    <div id="errorMsg" class="error"></div>
-  </form>
-
-  <!-- Control Panel -->
-  <div id="controlPanel" style="display:none;">
-    <h2>Manage Paid Users</h2>
-    <form onsubmit="handleAddUser(event)">
-      <label>New User Email:</label>
-      <input type="email" id="newEmail" placeholder="user@example.com" required />
-      <label>API Access Code (4 digits):</label>
-      <input type="text" id="newCode" maxlength="4" required />
-      <label><input type="checkbox" id="newPaid" /> Paid</label>
-      <button type="submit">Add/Update User</button>
-    </form>
-
-    <table>
-      <thead>
-        <tr><th>Email</th><th>API Code</th><th>Paid</th><th>Actions</th></tr>
-      </thead>
-      <tbody id="usersTableBody"></tbody>
-    </table>
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <div class="error-msg" id="errorMsg"></div>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <input type="text" id="securityAnswer" placeholder="Who are you?" required />
+    <button onclick="handleLogin()">Login</button>
   </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Your Firebase configuration here
+    const firebaseConfig = {
+      apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
+      authDomain: "smart-burme-app.firebaseapp.com",
+      projectId: "smart-burme-app",
+      storageBucket: "smart-burme-app.appspot.com",
+      messagingSenderId: "851502425686",
+      appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const errorMsg = document.getElementById('errorMsg');
+
+    async function handleLogin() {
+      errorMsg.textContent = '';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const answer = document.getElementById('securityAnswer').value.trim();
+
+      if (!email || !password || !answer) {
+        errorMsg.textContent = 'Please fill all fields.';
+        return;
+      }
+
+      if (answer.toLowerCase() !== 'admin-0000') {
+        errorMsg.textContent = 'Security answer is incorrect.';
+        return;
+      }
+
+      try {
+        // Firebase sign-in
+        await auth.signInWithEmailAndPassword(email, password);
+
+        // Optionally check if this email is authorized admin (e.g. via Realtime DB)
+        // For simplicity, allow only specific email:
+        if (email.toLowerCase() !== 'wayne.mm.92@gmail.com') {
+          errorMsg.textContent = 'Access denied: Not admin email.';
+          await auth.signOut();
+          return;
+        }
+
+        // Login success, redirect to api.html
+        window.location.href = 'api.html';
+
+      } catch (err) {
+        errorMsg.textContent = err.message;
+      }
+    }
+  </script>
+
 </body>
 </html>
