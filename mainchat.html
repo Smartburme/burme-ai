@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Burme Ai - Main Chat</title>
-  <link rel="icon" href="assets/icon.jpg">
+  <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       margin: 0;
@@ -111,7 +111,7 @@
   <div class="title-bar">
     <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
-    <img src="assets/icon.jpg" width="30" height="30" style="border-radius: 50%;">
+    <img src="assets/icon.jpg" width="30" height="30" style="border-radius: 50%;" />
   </div>  <div class="search-row">
     <input id="searchInput" type="text" placeholder="Search...">
     <button onclick="runSearch()" style="background: none; border: none; color: #00ffff; font-size: 20px; cursor: pointer;">🔍</button>
@@ -126,11 +126,10 @@
     </div>
     <button class="send-button" onclick="sendMessage()">Send</button>
   </div>  <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)">
-  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display: none;" onchange="uploadFolder(event)">  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script>  <script>
+  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display: none;" onchange="uploadFolder(event)">  <script src="js/env.js"></script>  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script>  <script>
     function runSearch() {
       const query = document.getElementById('searchInput').value.trim();
       if (!query) return;
-
       const encoded = encodeURIComponent(query);
       const options = [
         `https://www.google.com/search?q=${encoded}`,
@@ -138,7 +137,6 @@
         `https://www.youtube.com/results?search_query=${encoded}`,
         `https://html.duckduckgo.com/?q=${encoded}`
       ];
-
       for (let url of options) window.open(url, '_blank');
     }
     function triggerUpload() {
@@ -149,7 +147,7 @@
     }
     function triggerLinkUpload() {
       const link = prompt("Enter link to upload or analyze:");
-      if (link) alert("Uploading link: " + link); // Replace with actual logic
+      if (link) alert("Uploading link: " + link);
     }
   </script></body>
 </html>
