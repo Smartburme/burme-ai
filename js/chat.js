@@ -34,23 +34,12 @@ async function sendMessage() {
   addMessage("⏳ Generating response...", "bot", "loading");
 
   try {
-    // Get API key from localStorage (optional: fallback or prompt user)
-    const apiKey = localStorage.getItem('GEMINI_API_KEY');
-    if (!apiKey) {
-      removeLastBotLoading();
-      addMessage("❌ API Key is missing. Please set it in Settings.", "bot");
-      inputField.disabled = false;
-      return;
-    }
-
-    // Call generateGeminiReply, which itself loads API key if needed
     const reply = await generateGeminiReply(message, "text");
-    console.log("Gemini reply:", reply);
     removeLastBotLoading();
     addMessage(reply, "bot");
   } catch (err) {
     removeLastBotLoading();
-    addMessage("❌ Gemini API error", "bot");
+    addMessage("❌ Gemini API error: " + err.message, "bot");
     console.error(err);
   } finally {
     inputField.disabled = false;
@@ -69,12 +58,11 @@ async function uploadImage(event) {
 
   try {
     const imageUrl = await generateGeminiReply(prompt, "image");
-    console.log("Generated image URL:", imageUrl);
     removeLastBotLoading();
     addImageMessage(imageUrl);
   } catch (err) {
     removeLastBotLoading();
-    addMessage("❌ Image generation failed", "bot");
+    addMessage("❌ Image generation failed: " + err.message, "bot");
     console.error(err);
   }
 }
@@ -95,7 +83,6 @@ function uploadFolder(event) {
   const files = event.target.files;
   if (files.length > 0) {
     addMessage(`📁 Folder with ${files.length} files uploaded`, "user");
-    // Enhance processing if needed
   }
 }
 
@@ -104,7 +91,6 @@ function uploadLink() {
   const link = prompt("Enter a link to upload or analyze:");
   if (link) {
     addMessage(`🔗 Link provided: ${link}`, "user");
-    // Add API logic if needed
   }
 }
 
