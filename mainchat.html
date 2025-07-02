@@ -92,34 +92,6 @@
   padding: 8px;
 }
 
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.input-bar textarea {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  font-size: 14px;
-  resize: none;
-  background: #222;
-  color: #00ffff;
-}
-
-.icon-button, select {
-  font-size: 14px;
-  background: #00ffff;
-  color: black;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
 .tag-bar {
   display: flex;
   flex-wrap: wrap;
@@ -162,121 +134,16 @@ img.generated-image {
       <div class="hint-box"><strong>Video:</strong> 🎥 Video generation not yet available.</div>
     </div>
   </div>  <div class="input-bar">
-    <div class="input-row">
-      <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
-      <select id="modeSelect">
-        <option value="text">Text</option>
-        <option value="image">Image</option>
-        <option value="video">Video</option>
-      </select>
-      <button class="icon-button" onclick="triggerUpload()">⚓</button>
-      <button class="icon-button" onclick="sendMessage()">ᐷ</button>
-    </div>
-    <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)" />
     <div class="tag-bar" id="tagBar"></div>
   </div>  <script src="js/gemini.js"></script>  <script>
     const chatContainer = document.getElementById('chatContainer');
     const inputField = document.getElementById('userInput');
-    const modeSelect = document.getElementById('modeSelect');
     const hintGroup = document.getElementById('hintGroup');
 
-    inputField.addEventListener('input', () => {
-      hintGroup.style.display = inputField.value.trim() ? 'none' : 'flex';
-    });
-
-    function triggerUpload() {
-      document.getElementById('imageUpload').click();
+    if (inputField) {
+      inputField.addEventListener('input', () => {
+        hintGroup.style.display = inputField.value.trim() ? 'none' : 'flex';
+      });
     }
-
-    async function sendMessage() {
-      const text = inputField.value.trim();
-      const mode = modeSelect.value;
-      if (!text) return;
-
-      addMessage(text, 'user');
-      inputField.value = '';
-      inputField.disabled = true;
-
-      const loadingId = addLoadingMessage('bot');
-
-      try {
-        const result = await generateGeminiReply(text, mode);
-        if (mode === 'image' && result.startsWith('http')) {
-          updateMessageImageById(loadingId, result);
-        } else {
-          updateMessageById(loadingId, result);
-        }
-      } catch (err) {
-        updateMessageById(loadingId, '❌ Error: ' + err.message);
-      } finally {
-        inputField.disabled = false;
-      }
-    }
-
-    function uploadImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = e => {
-        addImageMessage(e.target.result, 'user');
-      };
-      reader.readAsDataURL(file);
-
-      const fileName = file.name.replace(/\.[^/.]+$/, "");
-      inputField.value = `Generate an image based on: ${fileName}`;
-      modeSelect.value = 'image';
-      sendMessage();
-    }
-
-    function addMessage(text, sender) {
-      const div = document.createElement('div');
-      div.className = 'chat-message ' + sender;
-      div.innerText = text;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return div;
-    }
-
-    function addImageMessage(url, sender = 'bot') {
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = "Generated Image";
-      img.className = 'generated-image chat-message ' + sender;
-      chatContainer.appendChild(img);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return img;
-    }
-
-    function addLoadingMessage(sender = 'bot') {
-      const div = document.createElement('div');
-      div.className = 'chat-message ' + sender;
-      div.innerText = "⏳ Generating...";
-      const id = 'msg-' + Date.now();
-      div.dataset.id = id;
-      chatContainer.appendChild(div);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-      return id;
-    }
-
-    function updateMessageById(id, newText) {
-      const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
-      if (msg) msg.innerText = newText;
-    }
-
-    function updateMessageImageById(id, url) {
-      const msg = [...chatContainer.children].find(el => el.dataset?.id === id);
-      if (msg) {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = "Generated Image";
-        img.className = 'generated-image chat-message bot';
-        msg.replaceWith(img);
-      }
-    }
-
-    window.sendMessage = sendMessage;
-    window.uploadImage = uploadImage;
-    window.triggerUpload = triggerUpload;
-  </script></body>
+  </script>  <script src="js/ui.js"></script></body>
 </html>
