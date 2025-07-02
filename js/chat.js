@@ -1,34 +1,9 @@
-// Send message and get Gemini response
-async function sendMessage() {
-  const inputField = document.getElementById("userInput");
-  const message = inputField.value.trim();
-  if (!message) return;
-
-  addMessage(message, "user");
-  inputField.value = "";
-  inputField.disabled = true;
-
-  addMessage("⏳ Generating response...", "bot", "loading");
-
-  try {
-    const reply = await generateGeminiReply(message, "text");
-    removeLastBotLoading();
-    addMessage(reply, "bot");
-  } catch (err) {
-    removeLastBotLoading();
-    addMessage("❌ Gemini API error", "bot");
-    console.error(err);
-  } finally {
-    inputField.disabled = false;
-  }
-}
-
 // Add message to chat container
 function addMessage(text, sender, loading = false) {
   const container = document.getElementById("chatContainer");
   const div = document.createElement("div");
   div.className = "chat-message " + sender;
-  div.innerText = text;
+  div.textContent = text;
   if (loading) div.dataset.loading = "true";
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
@@ -46,6 +21,32 @@ function removeLastBotLoading() {
   }
 }
 
+// Send message and get Gemini response
+async function sendMessage() {
+  const inputField = document.getElementById("userInput");
+  const message = inputField.value.trim();
+  if (!message) return;
+
+  addMessage(message, "user");
+  inputField.value = "";
+  inputField.disabled = true;
+
+  addMessage("⏳ Generating response...", "bot", "loading");
+
+  try {
+    const reply = await generateGeminiReply(message, "text");
+    console.log("Gemini reply:", reply);
+    removeLastBotLoading();
+    addMessage(reply, "bot");
+  } catch (err) {
+    removeLastBotLoading();
+    addMessage("❌ Gemini API error", "bot");
+    console.error(err);
+  } finally {
+    inputField.disabled = false;
+  }
+}
+
 // Upload image file and generate from filename
 async function uploadImage(event) {
   const file = event.target.files[0];
@@ -58,11 +59,13 @@ async function uploadImage(event) {
 
   try {
     const imageUrl = await generateGeminiReply(prompt, "image");
+    console.log("Generated image URL:", imageUrl);
     removeLastBotLoading();
     addImageMessage(imageUrl);
   } catch (err) {
     removeLastBotLoading();
     addMessage("❌ Image generation failed", "bot");
+    console.error(err);
   }
 }
 
