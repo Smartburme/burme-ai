@@ -6,7 +6,107 @@
   <title>Burme Ai - Main Chat</title>
   <link rel="icon" href="assets/icon.jpg" />
   <style>
-    /* (style သည်အထက်ပါနမူနာလိုပဲ) */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      color: #00ffff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 15px;
+      background: rgba(0,0,0,0.9);
+      box-shadow: 0 0 6px #00ffff88;
+      flex-shrink: 0;
+    }
+    .title-text {
+      flex: 1;
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    .title-bar img {
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+    }
+
+    #chatContainer {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 10px 15px;
+      background: #111;
+      scroll-behavior: smooth;
+    }
+    .chat-message {
+      background: rgba(0,255,255,0.1);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .chat-message.user {
+      background: rgba(0,255,255,0.4);
+      text-align: right;
+      margin-left: auto;
+    }
+    .chat-message.bot {
+      border-left: 3px solid #00ffff;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    .input-bar {
+      background: #000;
+      box-shadow: 0 -2px 8px #00ffff55;
+      padding: 10px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #userInput {
+      width: 100%;
+      min-height: 50px;
+      background: #222;
+      border: none;
+      border-radius: 10px;
+      color: #00ffff;
+      padding: 10px;
+      font-size: 16px;
+      resize: vertical;
+    }
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .icon-inside {
+      display: flex;
+      gap: 10px;
+    }
+    .icon-inside button, .send-button {
+      background: none;
+      border: none;
+      color: #00ffff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .send-button {
+      background: #00ffff;
+      color: #000;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -14,7 +114,7 @@
   <div class="title-bar">
     <a href="setting.html" style="text-decoration:none; color:#00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
-    <img src="assets/icon.jpg" alt="App Icon" id="userIcon" />
+    <img src="assets/icon.jpg" alt="App Icon" />
   </div>
 
   <div id="chatContainer"></div>
@@ -23,43 +123,21 @@
     <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
     <div class="input-row">
       <div class="icon-inside">
-        <button onclick="triggerUpload()" title="Upload Image">🖼️</button>
-        <button onclick="triggerFolderUpload()" title="Upload Folder">📁</button>
-        <button onclick="triggerLinkUpload()" title="Upload Link">🔗</button>
+        <button onclick="triggerUpload()">🖼️</button>
+        <button onclick="triggerFolderUpload()">📁</button>
+        <button onclick="triggerLinkUpload()">🔗</button>
       </div>
       <button class="send-button" onclick="sendMessage()">Send</button>
     </div>
   </div>
 
-  <!-- Hidden inputs for upload -->
   <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
   <input type="file" id="folderUpload" webkitdirectory directory multiple style="display:none;" onchange="uploadFolder(event)">
 
-  <script src="js/env.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/gemini.js"></script>
   <script src="js/ui.js"></script>
-
   <script>
-    window.onload = function() {
-      // Check login user
-      const userDataStr = localStorage.getItem('user');
-      if (!userDataStr) {
-        alert('Please login first.');
-        window.location.href = 'usercontrol.html';
-        return;
-      }
-      try {
-        const userData = JSON.parse(userDataStr);
-        if (userData.icon && userData.icon.trim() !== '') {
-          document.getElementById('userIcon').src = userData.icon;
-        }
-      } catch(e) {
-        console.warn('Invalid user data in localStorage');
-      }
-    };
-
-    // Trigger uploads
     function triggerUpload() {
       document.getElementById('imageUpload').click();
     }
@@ -67,48 +145,33 @@
       document.getElementById('folderUpload').click();
     }
     function triggerLinkUpload() {
-      const link = prompt("Enter link to upload or analyze:");
+      const link = prompt("Enter link:");
       if (link) alert("Uploading link: " + link);
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const input = document.getElementById('userInput');
       const message = input.value.trim();
       if (!message) return;
 
-      // Special code: If user types "admin-0000" => redirect to usercontrol.html
+      addMessage(message, 'user');
+      input.value = '';
+
+      // ✅ Admin redirect logic
       if (message.toLowerCase() === 'admin-0000') {
-        alert('Redirecting to Admin Control Panel...');
         window.location.href = 'usercontrol.html';
         return;
       }
 
-      // Else normal send process
-      appendUserMessage(message);
-      input.value = '';
-
-      // Call AI Gemini or your chat logic here, example:
-      generateGeminiReply(message, 'text').then(reply => {
-        appendBotMessage(reply);
-      });
+      const reply = await generateGeminiReply(message, 'text');
+      addMessage(reply, 'bot');
     }
 
-    // Append user message in chat
-    function appendUserMessage(text) {
+    function addMessage(text, sender) {
       const container = document.getElementById('chatContainer');
       const div = document.createElement('div');
-      div.className = 'chat-message user';
-      div.textContent = text;
-      container.appendChild(div);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    // Append bot message in chat
-    function appendBotMessage(text) {
-      const container = document.getElementById('chatContainer');
-      const div = document.createElement('div');
-      div.className = 'chat-message bot';
-      div.textContent = text;
+      div.className = 'chat-message ' + sender;
+      div.innerText = text;
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
