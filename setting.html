@@ -2,90 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burme AI - Settings</title>
+  <title>Burme AI - User Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      margin: 0; padding: 0;
       background: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      margin: 20px;
     }
     h1 {
       text-align: center;
-      padding: 15px 0;
-      margin: 0;
-      border-bottom: 1px solid #00ffff55;
+      margin-bottom: 20px;
       font-weight: bold;
     }
-    .container {
-      display: flex;
-      flex: 1;
-      gap: 10px;
-      padding: 10px;
-    }
-    iframe {
-      flex: 1;
-      border: 1px solid #00ffff55;
-      border-radius: 8px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
       background: #111;
       color: #00ffff;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    .buttons {
-      padding: 10px;
-      text-align: center;
-      border-top: 1px solid #00ffff55;
-      background: #000;
-    }
-    button {
-      background: #00ffff;
-      border: none;
-      padding: 10px 20px;
-      font-size: 18px;
-      font-weight: bold;
       border-radius: 8px;
-      cursor: pointer;
-      color: #000;
-      transition: background-color 0.3s ease;
+      overflow: hidden;
     }
-    button:hover {
-      background: #00bbbb;
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #00ffff55;
+      text-align: left;
+    }
+    th {
+      background: #002222;
+    }
+    tr:hover {
+      background: #004444;
+    }
+    /* Link style */
+    a {
+      color: #00ffff;
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Burme AI Settings</h1>
+  <h1>User Control Panel</h1>
 
-  <div class="container">
-    <iframe id="aboutFrame" srcdoc="
-      <h2 style='text-align:center; color:#00ffff;'>About Burme AI</h2>
-      <p style='padding: 10px;'>
-        Burme AI assistant is a Burmese language AI chatbot project.<br>
-        <b>Admin:</b> Mg Aung Myo Kyaw<br>
-        <b>Country:</b> Naypyitaw, Myanmar<br>
-        <b>Email:</b> wayne.mm.92@gmail.com<br>
-        <b>Phone:</b> 09677740154<br>
-        <b>Purpose:</b> Provide AI chat services in Burmese language.
-      </p>
-    "></iframe>
-
-    <iframe id="adminFrame" src="usercontrol.html" title="Admin Control Panel"></iframe>
-  </div>
-
-  <div class="buttons">
-    <button onclick="goToAPI()">Upload API</button>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>User Email</th>
+        <th>Code</th>
+        <th>End Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody">
+      <!-- Data will be dynamically inserted here -->
+    </tbody>
+  </table>
 
   <script>
-    function goToAPI() {
-      // Optional: Check admin login status before redirecting
-      window.location.href = "api.html";
-    }
+    // Sample data to demo, replace with actual data fetching logic
+    const users = [
+      { email: "wayne.mm.92@gmail.com", code: "0000", endDate: "2025-12-31" },
+      { email: "user1@example.com", code: "1234", endDate: "2025-10-01" }
+    ];
+
+    const tbody = document.getElementById('userTableBody');
+    users.forEach(user => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${user.email}</td>
+        <td>${user.code}</td>
+        <td>${user.endDate}</td>
+        <td><a href="#" onclick="alert('Edit user: ${user.email}')">Edit</a></td>
+      `;
+      tbody.appendChild(tr);
+    });
   </script>
 </body>
 </html>
