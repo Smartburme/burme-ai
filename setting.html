@@ -68,10 +68,10 @@
         return;
       }
 
-      // Get users from localStorage (from usercontrol.html)
       const users = JSON.parse(localStorage.getItem("controlUsers")) || [];
 
       const validUser = users.find(u => u.email === email && u.code === code);
+
       if (validUser) {
         alert("✅ Access granted! Redirecting to API page...");
         window.location.href = "api.html";
