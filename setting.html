@@ -1,46 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>About - Burme AI</title>
-  <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       background: #000;
       color: #00ffff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0; padding: 20px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    h1, h2 {
+      font-family: Arial, sans-serif;
+      padding: 20px;
       text-align: center;
     }
-    p {
-      line-height: 1.5;
-      font-size: 16px;
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin: 10px;
+      width: 80%;
+      max-width: 300px;
     }
-    .admin-contact {
-      margin-top: 40px;
-      border-top: 1px solid #00ffff55;
-      padding-top: 20px;
+    button {
+      padding: 10px 20px;
+      background: #00ffff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>About Burme AI</h1>
+  <h2>📘 About Burme AI</h2>
+  <p><b>Burme AI Assistant</b> is a Myanmar-focused intelligent assistant that can generate text, images, code, and more.</p>
+
+  <h3>👤 Admin Info</h3>
   <p>
-    Burme AI သည် မြန်မာဘာသာစကားအခြေပြု AI assistant ဖြစ်ပြီး 
-    စာသား၊ ပုံ၊ ဗီဒီယို၊ ကုဒ် စသည်တို့ကို ဖန်တီးပေးနိုင်သည်။
+    Name: Mg Aung Myo Kyaw<br>
+    Country: Naypyitaw, Myanmar<br>
+    Email: wayne.mm.92@gmail.com<br>
+    Phone: 09677740154
   </p>
 
-  <div class="admin-contact">
-    <h2>Admin Contact</h2>
-    <p>Name: Mg Aung Myo Kyaw</p>
-    <p>Country: Naypyitaw, Myanmar</p>
-    <p>Email: wayne.mm.92@gmail.com</p>
-    <p>Phone: 09677740154</p>
-  </div>
+  <hr style="margin: 20px 0; border: 1px dashed #00ffff88">
+
+  <h3>🔐 Upload API Access</h3>
+  <input id="userEmail" type="email" placeholder="Enter your Gmail"><br>
+  <input id="userCode" type="password" placeholder="Enter your 4-digit code"><br>
+  <button onclick="checkAndOpenAPI()">Upload API</button>
+
+  <!-- Firebase & Logic -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      databaseURL: "https://YOUR_PROJECT.firebaseio.com"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    async function checkAndOpenAPI() {
+      const email = document.getElementById('userEmail').value.trim();
+      const code = document.getElementById('userCode').value.trim();
+      if (!email || !code) return alert("❗ Fill Gmail & Code");
+
+      const key = email.replace(/\./g, ',');
+      const snapshot = await db.ref('paidUsers/' + key).get();
+      if (!snapshot.exists()) return alert("❌ Gmail not registered");
+
+      const user = snapshot.val();
+      if (user.apiCode !== code || !user.paid) {
+        return alert("❌ Invalid Code or Unpaid");
+      }
+
+      // Save verified to localStorage
+      localStorage.setItem('verifiedEmail', email);
+      localStorage.setItem('verifiedCode', code);
+      window.location.href = "api.html";
+    }
+  </script>
 </body>
 </html>
