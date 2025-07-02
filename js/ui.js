@@ -1,12 +1,68 @@
 // js/ui.js
 
-// Optional UI interaction enhancements
+// Sidebar toggle logic (if sidebar exists)
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('active');
+}
 
-document.addEventListener('DOMContentLoaded', () => { const input = document.getElementById('userInput'); const container = document.getElementById('chatContainer'); const modeSelect = document.getElementById('modeSelect'); const tagBar = document.getElementById('tagBar');
+// Floating animation for icons/buttons (optional)
+function floatAnimation(element, amplitude = 10, speed = 2000) {
+  let start = null;
+  function step(timestamp) {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+    const deltaY = amplitude * Math.sin((elapsed / speed) * 2 * Math.PI);
+    element.style.transform = `translateY(${deltaY}px)`;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 
-const hints = { text: '💬 Natural questions, instructions, or ideas.', image: '🖼 Describe a visual concept or scene.', coder: '💻 Ask for code snippets or debugging help.', project: '🧠 Describe a full project idea to plan/build.', plan: '🗂 Request a strategy or roadmap.', video: '🎥 Describe a video idea (experimental).' };
+// Initialize floating icons/buttons (pass NodeList or single element)
+function initFloating(elements) {
+  if (!elements) return;
+  if (elements instanceof NodeList) {
+    elements.forEach(el => floatAnimation(el));
+  } else {
+    floatAnimation(elements);
+  }
+}
 
-modeSelect.addEventListener('change', () => { const hint = hints[modeSelect.value] || ''; const tag = document.createElement('span'); tag.className = 'tag'; tag.innerText = hint; tagBar.innerHTML = ''; tagBar.appendChild(tag); });
+// Theme toggle between dark/light (optional)
+function toggleTheme() {
+  const body = document.body;
+  body.classList.toggle('light-theme');
+  // You can add localStorage save/load here
+}
 
-input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }); });
+// Search input "Enter" key trigger
+function initSearchInput(searchInputId, searchButtonId) {
+  const input = document.getElementById(searchInputId);
+  const btn = document.getElementById(searchButtonId);
+  if (!input || !btn) return;
 
+  input.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      btn.click();
+    }
+  });
+}
+
+// Initialize UI on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Example: init floating on all elements with class 'float-icon'
+  const floats = document.querySelectorAll('.float-icon');
+  initFloating(floats);
+
+  // Initialize search input Enter key (if used)
+  initSearchInput('searchInput', 'searchButton');
+});
+
+export {
+  toggleSidebar,
+  toggleTheme,
+  initFloating,
+  initSearchInput
+};
