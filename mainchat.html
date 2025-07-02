@@ -167,7 +167,8 @@
   <div class="title-bar">
     <a href="setting.html" style="text-decoration:none; color:#00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
-    <img src="assets/icon.jpg" alt="App Icon" />
+    <!-- User icon with id -->
+    <img src="assets/icon.jpg" alt="App Icon" id="userIcon" />
   </div>
 
   <div id="chatContainer"></div>
@@ -194,6 +195,26 @@
   <script src="js/ui.js"></script>
 
   <script>
+    // Redirect if no login info in localStorage
+    window.onload = function() {
+      const userDataStr = localStorage.getItem('user');
+      if (!userDataStr) {
+        alert('Please login first.');
+        window.location.href = 'usercontrol.html';
+        return;
+      }
+
+      // Set user icon from stored user data
+      try {
+        const userData = JSON.parse(userDataStr);
+        if (userData.icon && userData.icon.trim() !== '') {
+          document.getElementById('userIcon').src = userData.icon;
+        }
+      } catch(e) {
+        console.warn('Invalid user data in localStorage');
+      }
+    };
+
     function triggerUpload() {
       document.getElementById('imageUpload').click();
     }
