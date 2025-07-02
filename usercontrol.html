@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Burme AI - User Control</title>
+  <style>
+    body {
+      background: #000;
+      color: #00ffff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      color: #00ffff;
+    }
+    th, td {
+      border: 1px solid #00ffff;
+      padding: 8px;
+      text-align: center;
+    }
+    input, button {
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      margin: 5px;
+      background: #222;
+      color: #00ffff;
+      font-size: 14px;
+    }
+    button {
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Burme AI - User Control</h1>
+
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Paid</th>
+        <th>API Code</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3>Add / Update User</h3>
+  <input type="email" id="emailInput" placeholder="User Email" />
+  <input type="text" id="apiCodeInput" placeholder="API Code (e.g. 4444)" />
+  <label><input type="checkbox" id="paidCheckbox" /> Paid User</label>
+  <button onclick="addOrUpdateUser()">Add / Update User</button>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+  <script>
+    // Firebase config - သင့်ကိုယ်ပိုင် config ဖြည့်ပါ
+    const firebaseConfig = {
+      apiKey: "AIzaSyXXXXXXX",
+      authDomain: "yourproject.firebaseapp.com",
+      databaseURL: "https://yourproject-default-rtdb.firebaseio.com",
+      projectId: "yourproject",
+      storageBucket: "yourproject.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdefghijk"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const userTableBody = document.querySelector('#userTable tbody');
+
+    function renderUsers(users) {
+      userTableBody.innerHTML = '';
+      for (const emailKey in users) {
+        const user = users[emailKey];
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${emailKey.replace(/,/g, '.')}</td>
+          <td>${user.paid ? 'Yes' : 'No'}</td>
+          <td>${user.apiCode || ''}</td>
+          <td>
+            <button onclick="deleteUser('${emailKey}')">Delete</button>
+          </td>
+        `;
+        userTableBody.appendChild(tr);
+      }
+    }
+
+    function loadUsers() {
+      db.ref('paidUsers').on('value', snapshot => {
+        if (snapshot.exists()) {
+          renderUsers(snapshot.val());
+        } else {
+          userTableBody.innerHTML = '<tr><td colspan="4">No users found</td></tr>';
+        }
+      });
+    }
+
+    function addOrUpdateUser() {
+      const email = document.getElementById('emailInput').value.trim();
+      const apiCode = document.getElementById('apiCodeInput').value.trim();
+      const paid = document.getElementById('paidCheckbox').checked;
+
+      if (!email || !apiCode) {
+        alert('Please enter both Email and API Code');
+        return;
+      }
+      const key = email.replace(/\./g, ',');
+      db.ref('paidUsers/' + key).set({
+        paid,
+        apiCode
+      }).then(() => {
+        alert('User added/updated successfully');
+        document.getElementById('emailInput').value = '';
+        document.getElementById('apiCodeInput').value = '';
+        document.getElementById('paidCheckbox').checked = false;
+      }).catch(err => {
+        alert('Error: ' + err.message);
+      });
+    }
+
+    function deleteUser(emailKey) {
+      if (confirm('Delete this user?')) {
+        db.ref('paidUsers/' + emailKey).remove();
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
