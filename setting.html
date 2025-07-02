@@ -1,82 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>About - Burme AI</title>
+  <meta charset="UTF-8" />
+  <title>Burme AI - Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
+      margin: 0; padding: 0;
       background: #000;
       color: #00ffff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
-    input {
+    h1 {
+      text-align: center;
+      padding: 15px 0;
+      margin: 0;
+      border-bottom: 1px solid #00ffff55;
+      font-weight: bold;
+    }
+    .container {
+      display: flex;
+      flex: 1;
+      gap: 10px;
       padding: 10px;
+    }
+    iframe {
+      flex: 1;
+      border: 1px solid #00ffff55;
       border-radius: 8px;
-      border: none;
-      margin: 10px;
-      width: 80%;
-      max-width: 300px;
+      background: #111;
+      color: #00ffff;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    .buttons {
+      padding: 10px;
+      text-align: center;
+      border-top: 1px solid #00ffff55;
+      background: #000;
     }
     button {
-      padding: 10px 20px;
       background: #00ffff;
-      color: #000;
       border: none;
+      padding: 10px 20px;
+      font-size: 18px;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
+      color: #000;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #00bbbb;
     }
   </style>
 </head>
 <body>
-  <h2>📘 About Burme AI</h2>
-  <p><b>Burme AI Assistant</b> is a Myanmar-focused intelligent assistant that can generate text, images, code, and more.</p>
+  <h1>Burme AI Settings</h1>
 
-  <h3>👤 Admin Info</h3>
-  <p>
-    Name: Mg Aung Myo Kyaw<br>
-    Country: Naypyitaw, Myanmar<br>
-    Email: wayne.mm.92@gmail.com<br>
-    Phone: 09677740154
-  </p>
+  <div class="container">
+    <iframe id="aboutFrame" srcdoc="
+      <h2 style='text-align:center; color:#00ffff;'>About Burme AI</h2>
+      <p style='padding: 10px;'>
+        Burme AI assistant is a Burmese language AI chatbot project.<br>
+        <b>Admin:</b> Mg Aung Myo Kyaw<br>
+        <b>Country:</b> Naypyitaw, Myanmar<br>
+        <b>Email:</b> wayne.mm.92@gmail.com<br>
+        <b>Phone:</b> 09677740154<br>
+        <b>Purpose:</b> Provide AI chat services in Burmese language.
+      </p>
+    "></iframe>
 
-  <hr style="margin: 20px 0; border: 1px dashed #00ffff88">
+    <iframe id="adminFrame" src="usercontrol.html" title="Admin Control Panel"></iframe>
+  </div>
 
-  <h3>🔐 Upload API Access</h3>
-  <input id="userEmail" type="email" placeholder="Enter your Gmail"><br>
-  <input id="userCode" type="password" placeholder="Enter your 4-digit code"><br>
-  <button onclick="checkAndOpenAPI()">Upload API</button>
+  <div class="buttons">
+    <button onclick="goToAPI()">Upload API</button>
+  </div>
 
-  <!-- Firebase & Logic -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    async function checkAndOpenAPI() {
-      const email = document.getElementById('userEmail').value.trim();
-      const code = document.getElementById('userCode').value.trim();
-      if (!email || !code) return alert("❗ Fill Gmail & Code");
-
-      const key = email.replace(/\./g, ',');
-      const snapshot = await db.ref('paidUsers/' + key).get();
-      if (!snapshot.exists()) return alert("❌ Gmail not registered");
-
-      const user = snapshot.val();
-      if (user.apiCode !== code || !user.paid) {
-        return alert("❌ Invalid Code or Unpaid");
-      }
-
-      // Save verified to localStorage
-      localStorage.setItem('verifiedEmail', email);
-      localStorage.setItem('verifiedCode', code);
+    function goToAPI() {
+      // Optional: Check admin login status before redirecting
       window.location.href = "api.html";
     }
   </script>
