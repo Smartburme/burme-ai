@@ -1,10 +1,9 @@
 // chat.js
 
-// Chat container element
 const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 
-// Send user message to Gemini API and show response
+// User စာပို့ရင် API ကိုခေါ်ပြီး reply ပြန်လည်ပြ
 async function sendMessage() {
   const text = userInput.value.trim();
   if (!text) return;
@@ -13,33 +12,28 @@ async function sendMessage() {
   userInput.value = '';
   userInput.disabled = true;
 
-  // Show loader
   const loader = showLoader(chatContainer);
 
   try {
-    // Detect mode based on simple heuristics (could improve)
-    // Here just assume text mode for simplicity
-    const mode = 'text';
-
-    const reply = await generateGeminiReply(text, mode);
+    // mode ကို prompt အရ ယူချင်လို့ ပြင်နိုင်တယ်၊ ယခု text mode ထားထား
+    const reply = await generateGeminiReply(text, 'text');
     removeLoader(loader);
 
     if (isValidUrl(reply)) {
-      addImageMessage(reply); // If reply is a URL (image)
+      addImageMessage(reply);
     } else {
       addMessage(reply, 'bot');
     }
-
   } catch (err) {
     removeLoader(loader);
-    addMessage("❌ Gemini API error: " + err.message, 'bot');
+    addMessage(`❌ Gemini API error: ${err.message}`, 'bot');
   } finally {
     userInput.disabled = false;
     userInput.focus();
   }
 }
 
-// Add text message to chat container
+// chat message add လုပ်ရန်
 function addMessage(text, sender = 'bot') {
   const div = document.createElement('div');
   div.className = `chat-message ${sender}`;
@@ -48,10 +42,10 @@ function addMessage(text, sender = 'bot') {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Add image message to chat container
+// image message add လုပ်ရန်
 function addImageMessage(url) {
   if (!url) {
-    addMessage('⚠️ No image URL.', 'bot');
+    addMessage('⚠️ No image URL returned.', 'bot');
     return;
   }
   const img = document.createElement('img');
@@ -62,7 +56,7 @@ function addImageMessage(url) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Show loader text during API call
+// loader ပြရန်
 function showLoader(container) {
   const loader = document.createElement('div');
   loader.className = 'loader';
@@ -79,31 +73,27 @@ function showLoader(container) {
   return loader;
 }
 
-// Remove loader element
+// loader ဖျက်ရန်
 function removeLoader(loader) {
   if (loader && loader.parentNode) {
     loader.parentNode.removeChild(loader);
   }
 }
 
-// Upload image file handler
+// Image file upload handler
 function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   addMessage(`Uploading image: ${file.name}`, 'user');
 
-  // You can implement your upload logic here or generate prompt
-  // For demo, generate prompt from file name
   const prompt = `Generate an image based on: ${file.name}`;
-
-  // Show loader
   const loader = showLoader(chatContainer);
 
   generateGeminiReply(prompt, 'image')
     .then((imageUrl) => {
       removeLoader(loader);
-      if (imageUrl && isValidUrl(imageUrl)) {
+      if (isValidUrl(imageUrl)) {
         addImageMessage(imageUrl);
       } else {
         addMessage('⚠️ Failed to generate image.', 'bot');
@@ -115,23 +105,22 @@ function uploadImage(event) {
     });
 }
 
-// Upload folder handler (just show alert for demo)
+// Folder upload placeholder handler
 function uploadFolder(event) {
-  alert("Folder upload is not implemented yet.");
-  // You can extend this function to handle folder contents if needed
+  alert("📁 Folder upload not implemented yet.");
+  // Folder upload logic ထည့်နိုင်ပါတယ်
 }
 
-// Upload link handler (prompt user for link and process)
+// Link upload handler (prompt input)
 function uploadLink() {
   const link = prompt("Enter link to upload or analyze:");
   if (link) {
     addMessage(`Analyzing link: ${link}`, 'user');
-    // Implement your link handling logic here, for example:
-    // generateGeminiReply(`Analyze this link: ${link}`, 'text').then(...)
+    // Link analysis logic ထည့်ပါ (optional)
   }
 }
 
-// Utility to validate URLs (basic check)
+// URL validity check
 function isValidUrl(string) {
   try {
     new URL(string);
@@ -141,10 +130,8 @@ function isValidUrl(string) {
   }
 }
 
-// Export functions globally for inline HTML use
+// Export globally for HTML inline handlers
 window.sendMessage = sendMessage;
-window.addMessage = addMessage;
-window.addImageMessage = addImageMessage;
 window.uploadImage = uploadImage;
 window.uploadFolder = uploadFolder;
 window.uploadLink = uploadLink;
