@@ -1,0 +1,22 @@
+[
+  {
+    "email": "user1@gmail.com",
+    "code": "1234",
+    "endDate": "2025-08-01"
+  },
+  {
+    "email": "user2@gmail.com",
+    "code": "5678",
+    "endDate": "2025-08-10"
+  },
+  {
+    "email": "wayne.mm.92@gmail.com",
+    "code": "0000",
+    "endDate": "2099-12-31"
+  },
+  {
+    "email": "example@domain.com",
+    "code": "9999",
+    "endDate": "2025-07-15"
+  }
+]
