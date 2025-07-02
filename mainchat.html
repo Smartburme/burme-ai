@@ -1,130 +1,121 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Burme Ai - Main Chat</title>
-  <link rel="icon" href="assets/icon.jpg" />
+  <link rel="icon" href="assets/icon.jpg">
   <style>
     body {
       margin: 0;
       background: #000;
       font-family: 'Segoe UI', sans-serif;
+      color: #00ffff;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      color: #00ffff;
     }.title-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px;
+  padding: 10px;
   background: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 0 5px #00ffff55;
+  box-shadow: 0 0 6px #00ffff88;
 }
 
 .title-text {
-  flex-grow: 1;
+  flex: 1;
   text-align: center;
-  font-size: 18px;
   font-weight: bold;
-}
-
-.search-bar {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  background: #111;
-  padding: 10px;
-}
-
-.search-bar input {
-  width: 40%;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-}
-
-.search-bar select {
-  padding: 6px;
-  border-radius: 6px;
 }
 
 .chat-container {
-  flex-grow: 1;
-  position: relative;
-  background: #111;
-  display: flex;
-  flex-direction: column;
+  flex: 1;
   overflow-y: auto;
   padding: 10px;
+  background: #111;
 }
 
 .chat-message {
-  background: rgba(0, 255, 255, 0.05);
+  background: rgba(0, 255, 255, 0.1);
   color: white;
   padding: 10px;
-  border-radius: 10px;
-  margin: 5px 0;
-  max-width: 90%;
+  border-radius: 8px;
+  margin: 5px;
 }
 
 .chat-message.user {
-  align-self: flex-end;
   background: rgba(0, 255, 255, 0.4);
+  text-align: right;
 }
 
 .chat-message.bot {
-  align-self: flex-start;
-  border-left: 3px solid #00ffff66;
+  border-left: 3px solid #00ffff;
 }
 
-.chat-message.loading {
-  font-style: italic;
-  opacity: 0.7;
+.search-row {
+  padding: 10px;
+  background: #111;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.search-row input {
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  width: 70%;
 }
 
 .input-bar {
-  display: flex;
-  flex-direction: column;
-  background: #000;
-  box-shadow: 0 -2px 5px #00ffff44;
   padding: 8px;
-}
-
-.input-row {
+  background: #000;
+  box-shadow: 0 -2px 8px #00ffff55;
   display: flex;
-  gap: 6px;
-  margin-bottom: 6px;
+  align-items: center;
 }
 
-.input-bar textarea {
+.input-wrapper {
+  position: relative;
   flex: 1;
-  padding: 10px;
+}
+
+#userInput {
+  width: 100%;
+  padding: 10px 80px 10px 10px;
   border-radius: 10px;
   border: none;
-  font-size: 14px;
-  resize: none;
   background: #222;
   color: #00ffff;
+  resize: none;
 }
 
-.icon-button {
-  font-size: 16px;
+.icon-inside {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 5px;
+}
+
+.icon-inside button {
+  background: none;
+  border: none;
+  color: #00ffff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.send-button {
+  margin-left: 10px;
   background: #00ffff;
-  color: black;
   border: none;
   border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
+  padding: 6px 12px;
+  color: #000;
   font-weight: bold;
-  white-space: nowrap;
-}
-
-img.generated-image {
-  max-width: 100%;
-  border-radius: 10px;
-  margin: 10px 0;
-  border: 1px solid #00ffff22;
+  cursor: pointer;
 }
 
   </style>
@@ -133,128 +124,20 @@ img.generated-image {
   <div class="title-bar">
     <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
-    <div>
-      <button class="icon-button" onclick="document.getElementById('keyLoader').click()">🔐 Load Key</button>
-      <input type="file" id="keyLoader" accept=".txt" style="display:none" onchange="loadGeminiKeyFromFile(event)" />
-    </div>
-  </div>  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search..." />
-    <select id="searchType">
-      <option value="google">Google</option>
-      <option value="youtube">YouTube</option>
-      <option value="pinterest">Pinterest</option>
-      <option value="html">HTML Site</option>
-    </select>
-    <button class="icon-button" onclick="runSearch()">🔍</button>
-  </div>  <div class="chat-container" id="chatContainer"></div>  <div class="input-bar">
-    <div class="input-row">
+    <img src="assets/icon.jpg" width="30" height="30" style="border-radius: 50%;">
+  </div>  <!-- Search Row -->  <div class="search-row">
+    <input id="searchInput" type="text" placeholder="Search...">
+    <button onclick="runSearch()" style="background: none; border: none; color: #00ffff; font-size: 20px; cursor: pointer;">🔍</button>
+  </div>  <!-- Chat Body -->  <div class="chat-container" id="chatContainer"></div>  <!-- Input Bar -->  <div class="input-bar">
+    <div class="input-wrapper">
       <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
-      <button class="icon-button" onclick="sendMessage()">ᐷ</button>
+      <div class="icon-inside">
+        <button onclick="triggerUpload()">📷</button>
+        <button onclick="uploadFolder()">📁</button>
+        <button onclick="uploadLink()">🔗</button>
+      </div>
     </div>
-    <div class="input-row">
-      <input type="file" id="imageUpload" accept="image/*" onchange="uploadImage(event)" />
-      <input type="file" id="folderUpload" webkitdirectory directory multiple onchange="uploadFolder(event)" />
-      <input type="text" id="urlInput" placeholder="Paste link here" style="flex:1; padding: 6px; border-radius: 6px;" />
-      <button class="icon-button" onclick="uploadLink()">Upload Link</button>
-    </div>
-  </div>  <script src="js/gemini.js"></script>  <script>
-    let GEMINI_API_KEY = '';
-
-    function loadGeminiKeyFromFile(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        GEMINI_API_KEY = e.target.result.trim();
-        alert("🔐 Gemini API Key loaded.");
-      };
-      reader.readAsText(file);
-    }
-
-    async function generateGeminiReply(message, mode = 'text') {
-      if (!GEMINI_API_KEY) return "❌ Gemini API Key မရှိသေးပါ။";
-
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-      let requestBody = {
-        contents: [{ parts: [{ text: message }] }]
-      };
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      const data = await res.json();
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ Gemini မှ ဖြေချက် မရရှိပါ။";
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      addMessage(text, 'user');
-      input.value = '';
-
-      const loader = addMessage('⏳ Thinking...', 'bot loading');
-      const reply = await generateGeminiReply(text, 'text');
-      loader.innerText = reply;
-      loader.classList.remove('loading');
-    }
-
-    function addMessage(text, sender) {
-      const container = document.getElementById('chatContainer');
-      const msg = document.createElement('div');
-      msg.className = `chat-message ${sender}`;
-      msg.innerText = text;
-      container.appendChild(msg);
-      container.scrollTop = container.scrollHeight;
-      return msg;
-    }
-
-    async function uploadImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const prompt = `Generate image based on file: ${file.name}`;
-      const imgUrl = await generateGeminiReply(prompt, 'image');
-      addImageMessage(imgUrl);
-    }
-
-    function addImageMessage(url) {
-      const container = document.getElementById('chatContainer');
-      const img = document.createElement('img');
-      img.src = url;
-      img.className = 'generated-image chat-message bot';
-      container.appendChild(img);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function uploadFolder(event) {
-      const files = event.target.files;
-      addMessage(`📁 Folder uploaded with ${files.length} files.`, 'user');
-    }
-
-    function uploadLink() {
-      const link = document.getElementById('urlInput').value;
-      if (link) {
-        addMessage(`🔗 Link uploaded: ${link}`, 'user');
-      }
-    }
-
-    function runSearch() {
-      const query = document.getElementById('searchInput').value;
-      const type = document.getElementById('searchType').value;
-      if (!query) return;
-      let url = '';
-      switch (type) {
-        case 'google': url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
-        case 'youtube': url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; break;
-        case 'pinterest': url = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}`; break;
-        case 'html': url = query.startsWith('http') ? query : `https://${query}`; break;
-      }
-      window.open(url, '_blank');
-    }
-  </script>  <script src="js/ui.js"></script></body>
+    <button class="send-button" onclick="sendMessage()">Send</button>
+  </div>  <!-- Hidden Inputs -->  <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)">
+  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display: none;" onchange="uploadFolder(event)">  <!-- Scripts -->  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script></body>
 </html>
