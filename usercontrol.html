@@ -1,125 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>User Control - Burme AI</title>
-  <link rel="icon" href="assets/icon.jpg" />
-  <style>
-    body {
-      background: #000;
-      color: #00ffff;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>User Control - Admin Only</title>
+<style>
+  body { background: #000; color: #0ff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+  h1 { text-align: center; }
+  form { max-width: 400px; margin: 20px auto; }
+  label, input { display: block; width: 100%; margin-bottom: 10px; }
+  input { padding: 8px; border-radius: 6px; border: none; }
+  button { background: #0ff; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
+  .error { color: #f66; margin-top: 10px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #0ff; padding: 8px; text-align: center; }
+</style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+  // Firebase config (သင့်အတိုင်းပြင်ပေးပါ)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAr7Hv2ApKtNTxF11MhT5cuWeg_Dgsh0TY",
+    authDomain: "smart-burme-app.firebaseapp.com",
+    projectId: "smart-burme-app",
+    storageBucket: "smart-burme-app.appspot.com",
+    messagingSenderId: "851502425686",
+    appId: "1:851502425686:web:f29e0e1dfa84794b4abdf7"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Admin email သတ်မှတ်ချက်
+  const adminEmail = "wayne.mm.92@gmail.com";
+
+  // Login form submit handler
+  window.handleLogin = async function(e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('email').value.trim();
+    const codeInput = document.getElementById('code').value.trim();
+
+    if(emailInput !== adminEmail) {
+      showError("❌ You are not authorized to access this page.");
+      return;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 30px;
+
+    const key = emailInput.replace(/\./g, ',');
+    const userRef = ref(db, 'paidUsers/' + key);
+    const snapshot = await get(userRef);
+
+    if(!snapshot.exists()) {
+      showError("❌ User not found.");
+      return;
     }
-    th, td {
-      border: 1px solid #00ffff88;
-      padding: 10px;
-      text-align: left;
+
+    const userData = snapshot.val();
+    if(userData.apiCode !== codeInput) {
+      showError("❌ Invalid code.");
+      return;
     }
-    th {
-      background: #003333;
+
+    if(!userData.paid) {
+      showError("❌ Payment not confirmed.");
+      return;
     }
-    input, button {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      font-size: 14px;
-      margin-right: 10px;
+
+    // Access granted, show user control panel
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('controlPanel').style.display = 'block';
+    clearError();
+    loadUsers();
+  };
+
+  // Show error message
+  function showError(msg) {
+    document.getElementById('errorMsg').textContent = msg;
+  }
+
+  function clearError() {
+    document.getElementById('errorMsg').textContent = '';
+  }
+
+  // Load users list from Firebase and display in table
+  async function loadUsers() {
+    const usersRef = ref(db, 'paidUsers');
+    const snapshot = await get(usersRef);
+    if(!snapshot.exists()) return;
+
+    const users = snapshot.val();
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+
+    for(const key in users) {
+      const u = users[key];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${key.replace(/,/g, '.')}</td>
+        <td>${u.apiCode || ''}</td>
+        <td>${u.paid ? 'Yes' : 'No'}</td>
+        <td><button onclick="deleteUser('${key}')">Delete</button></td>
+      `;
+      tbody.appendChild(tr);
     }
-    input {
-      width: 200px;
-      background: #111;
-      color: #00ffff;
+  }
+
+  // Delete user function
+  window.deleteUser = async function(key) {
+    if(!confirm(`Delete user ${key.replace(/,/g, '.')}?`)) return;
+    await set(ref(db, 'paidUsers/' + key), null);
+    loadUsers();
+  };
+
+  // Add user form submit
+  window.handleAddUser = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('newEmail').value.trim();
+    const code = document.getElementById('newCode').value.trim();
+    const paid = document.getElementById('newPaid').checked;
+
+    if(!email || !code) {
+      alert("Please enter email and code.");
+      return;
     }
-    button {
-      background: #00ffff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .form-row {
-      margin-bottom: 20px;
-    }
-    #status {
-      height: 24px;
-      font-weight: bold;
-      color: #0f0;
-    }
-  </style>
+
+    const key = email.replace(/\./g, ',');
+    await set(ref(db, 'paidUsers/' + key), { apiCode: code, paid: paid });
+    loadUsers();
+    e.target.reset();
+  };
+</script>
 </head>
 <body>
-  <h1>User Control Panel</h1>
-  <div class="form-row">
-    <input type="email" id="emailInput" placeholder="User Gmail" />
-    <input type="text" id="codeInput" placeholder="4-digit Code" maxlength="4" />
-    <button onclick="addUser()">Add / Update User</button>
+  <h1>User Control Panel (Admin Only)</h1>
+
+  <!-- Login Form -->
+  <form id="loginForm" onsubmit="handleLogin(event)">
+    <label>Email:</label>
+    <input type="email" id="email" required placeholder="Enter your admin email" />
+    <label>Access Code:</label>
+    <input type="text" id="code" required maxlength="4" placeholder="Enter 4-digit code" />
+    <button type="submit">Login</button>
+    <div id="errorMsg" class="error"></div>
+  </form>
+
+  <!-- Control Panel -->
+  <div id="controlPanel" style="display:none;">
+    <h2>Manage Paid Users</h2>
+    <form onsubmit="handleAddUser(event)">
+      <label>New User Email:</label>
+      <input type="email" id="newEmail" placeholder="user@example.com" required />
+      <label>API Access Code (4 digits):</label>
+      <input type="text" id="newCode" maxlength="4" required />
+      <label><input type="checkbox" id="newPaid" /> Paid</label>
+      <button type="submit">Add/Update User</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr><th>Email</th><th>API Code</th><th>Paid</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="usersTableBody"></tbody>
+    </table>
   </div>
-  <div id="status"></div>
-  
-  <table>
-    <thead>
-      <tr>
-        <th>Email</th>
-        <th>Code</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody"></tbody>
-  </table>
-
-  <script>
-    // Use localStorage for demo; replace with Firebase or DB for production
-    let users = JSON.parse(localStorage.getItem('paidUsers') || '{}');
-
-    function renderTable() {
-      const tbody = document.getElementById('userTableBody');
-      tbody.innerHTML = '';
-      for (const email in users) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${email.replace(/,/g, '.')}</td>
-          <td>${users[email].code}</td>
-          <td><button onclick="removeUser('${email}')">Delete</button></td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function addUser() {
-      const emailRaw = document.getElementById('emailInput').value.trim();
-      const code = document.getElementById('codeInput').value.trim();
-      if (!emailRaw || !code || code.length !== 4) {
-        alert('Please enter valid email and 4-digit code.');
-        return;
-      }
-      const email = emailRaw.replace(/\./g, ',');
-      users[email] = { code: code };
-      localStorage.setItem('paidUsers', JSON.stringify(users));
-      document.getElementById('status').textContent = `User ${emailRaw} saved.`;
-      renderTable();
-      document.getElementById('emailInput').value = '';
-      document.getElementById('codeInput').value = '';
-    }
-
-    function removeUser(email) {
-      if (confirm('Are you sure to delete this user?')) {
-        delete users[email];
-        localStorage.setItem('paidUsers', JSON.stringify(users));
-        renderTable();
-        document.getElementById('status').textContent = 'User deleted.';
-      }
-    }
-
-    // Initial render
-    renderTable();
-  </script>
 </body>
 </html>
