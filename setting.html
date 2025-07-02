@@ -2,77 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burme AI - Settings</title>
+  <title>About - Burme AI</title>
   <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       background: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 20px;
+      margin: 0; padding: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
-      margin-bottom: 20px;
     }
-    label, input, button {
-      display: block;
-      margin: 10px auto;
-      width: 90%;
-      max-width: 400px;
-    }
-    input {
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #222;
-      color: #00ffff;
+    p {
+      line-height: 1.5;
       font-size: 16px;
     }
-    button {
-      background: #00ffff;
-      color: #000;
-      font-weight: bold;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-      font-weight: bold;
+    .admin-contact {
+      margin-top: 40px;
+      border-top: 1px solid #00ffff55;
+      padding-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Burme AI Settings</h1>
-  <label for="apiKeyInput">Upload Gemini API Key</label>
-  <input type="text" id="apiKeyInput" placeholder="Paste your Gemini API Key here" autocomplete="off" />
-  <button id="saveApiKeyBtn">Save API Key</button>
-  <div id="status"></div>
+  <h1>About Burme AI</h1>
+  <p>
+    Burme AI သည် မြန်မာဘာသာစကားအခြေပြု AI assistant ဖြစ်ပြီး 
+    စာသား၊ ပုံ၊ ဗီဒီယို၊ ကုဒ် စသည်တို့ကို ဖန်တီးပေးနိုင်သည်။
+  </p>
 
-  <script>
-    // Load existing key from localStorage
-    const input = document.getElementById('apiKeyInput');
-    const status = document.getElementById('status');
-
-    window.onload = () => {
-      const savedKey = localStorage.getItem('GEMINI_API_KEY') || '';
-      input.value = savedKey;
-    };
-
-    document.getElementById('saveApiKeyBtn').onclick = () => {
-      const key = input.value.trim();
-      if (!key) {
-        status.textContent = '❌ Please enter a valid API key.';
-        return;
-      }
-      localStorage.setItem('GEMINI_API_KEY', key);
-      status.textContent = '✅ Gemini API Key saved successfully!';
-      setTimeout(() => { status.textContent = ''; }, 3000);
-    };
-  </script>
+  <div class="admin-contact">
+    <h2>Admin Contact</h2>
+    <p>Name: Mg Aung Myo Kyaw</p>
+    <p>Country: Naypyitaw, Myanmar</p>
+    <p>Email: wayne.mm.92@gmail.com</p>
+    <p>Phone: 09677740154</p>
+  </div>
 </body>
 </html>
