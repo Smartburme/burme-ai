@@ -1,27 +1,22 @@
 let GEMINI_API_KEY = '';
 
-// Load Gemini API Key from localStorage only
+// Load Gemini API Key from localStorage or fallback default
 function loadGeminiKey() {
   const savedKey = localStorage.getItem('GEMINI_API_KEY');
   if (savedKey && savedKey.trim() !== '') {
     GEMINI_API_KEY = savedKey.trim();
     console.log("✅ GEMINI API Key loaded from localStorage");
-    return true;
   } else {
-    console.warn("⚠️ GEMINI_API_KEY not found in localStorage.");
-    return false;
+    // Fallback to default hardcoded key
+    GEMINI_API_KEY = 'AIzaSyBy16Ws2nQkYz0nijJ_IuBgeyYjCbXjtUE';
+    console.warn("⚠️ GEMINI_API_KEY not found in localStorage. Using fallback key.");
   }
+  return true;
 }
 
 // Main function to generate Gemini response
 async function generateGeminiReply(prompt, mode = 'text') {
-  // Load API Key if not already loaded
-  if (!GEMINI_API_KEY) {
-    const loaded = loadGeminiKey();
-    if (!loaded) {
-      return "❌ Gemini API Key is missing. Please upload it in Settings.";
-    }
-  }
+  if (!GEMINI_API_KEY) loadGeminiKey();
 
   // Prepare API endpoint & body based on mode
   let endpoint = "";
@@ -50,7 +45,6 @@ async function generateGeminiReply(prompt, mode = 'text') {
       return `❌ Unsupported mode: "${mode}"`;
   }
 
-  // Send API request
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -67,7 +61,6 @@ async function generateGeminiReply(prompt, mode = 'text') {
     const data = await response.json();
     console.log("✅ Gemini API response:", data);
 
-    // Parse response
     if (mode === 'image') {
       return data?.candidates?.[0]?.content?.imageUri || "⚠️ No image returned.";
     } else {
