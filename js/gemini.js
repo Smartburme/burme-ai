@@ -1,40 +1,26 @@
 let GEMINI_API_KEY = '';
-const FALLBACK_API_KEY = 'YOUR_FALLBACK_KEY_HERE'; // optional fallback key
 
-// Load Gemini API Key function: localStorage first, fallback to .env fetch
-async function fetchGeminiKey() {
-  // 1. localStorage မှာ key ရှိမရှိစစ်
+// Load Gemini API Key from localStorage only
+function loadGeminiKey() {
   const savedKey = localStorage.getItem('GEMINI_API_KEY');
   if (savedKey && savedKey.trim() !== '') {
     GEMINI_API_KEY = savedKey.trim();
     console.log("✅ GEMINI API Key loaded from localStorage");
-    return;
-  }
-
-  // 2. localStorage မရှိ/မတည့်ပါက GitHub raw .env ဖိုင်မှ ရယူရန်
-  try {
-    const response = await fetch("https://raw.githubusercontent.com/Smartburme/burme-ai.io/main/assets/.env");
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const text = await response.text();
-
-    const match = text.match(/^GEMINI_API_KEY\s*=\s*(.+)$/m);
-    if (match) {
-      GEMINI_API_KEY = match[1].trim();
-      console.log("✅ GEMINI API Key loaded from .env");
-    } else {
-      console.warn("⚠️ GEMINI_API_KEY not found in .env file. Using fallback.");
-      GEMINI_API_KEY = FALLBACK_API_KEY;
-    }
-  } catch (error) {
-    console.error("❌ Failed to fetch Gemini API Key:", error);
-    GEMINI_API_KEY = FALLBACK_API_KEY;
+    return true;
+  } else {
+    console.warn("⚠️ GEMINI_API_KEY not found in localStorage.");
+    return false;
   }
 }
 
 // Core Generate Function
 async function generateGeminiReply(prompt, mode = 'text') {
-  if (!GEMINI_API_KEY) await fetchGeminiKey();
-  if (!GEMINI_API_KEY) return "❌ Gemini API Key is missing.";
+  if (!GEMINI_API_KEY) {
+    const loaded = loadGeminiKey();
+    if (!loaded) {
+      return "❌ Gemini API Key is missing. Please set it in Settings.";
+    }
+  }
 
   try {
     let endpoint = "https://generativelanguage.googleapis.com/v1beta/models/";
