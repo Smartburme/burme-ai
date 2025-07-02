@@ -34,6 +34,16 @@ async function sendMessage() {
   addMessage("⏳ Generating response...", "bot", "loading");
 
   try {
+    // Get API key from localStorage (optional: fallback or prompt user)
+    const apiKey = localStorage.getItem('GEMINI_API_KEY');
+    if (!apiKey) {
+      removeLastBotLoading();
+      addMessage("❌ API Key is missing. Please set it in Settings.", "bot");
+      inputField.disabled = false;
+      return;
+    }
+
+    // Call generateGeminiReply, which itself loads API key if needed
     const reply = await generateGeminiReply(message, "text");
     console.log("Gemini reply:", reply);
     removeLastBotLoading();
@@ -85,7 +95,7 @@ function uploadFolder(event) {
   const files = event.target.files;
   if (files.length > 0) {
     addMessage(`📁 Folder with ${files.length} files uploaded`, "user");
-    // You can enhance this logic to process each file if needed
+    // Enhance processing if needed
   }
 }
 
@@ -94,7 +104,7 @@ function uploadLink() {
   const link = prompt("Enter a link to upload or analyze:");
   if (link) {
     addMessage(`🔗 Link provided: ${link}`, "user");
-    // Add API logic here if needed
+    // Add API logic if needed
   }
 }
 
