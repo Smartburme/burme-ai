@@ -65,6 +65,7 @@ async function generateGeminiReply(prompt, mode = 'text') {
 
     if (!res.ok) {
       const errText = await res.text();
+      console.error("API Error Response:", errText);
       throw new Error(`Gemini API Error: ${res.status} - ${errText}`);
     }
 
@@ -78,7 +79,7 @@ async function generateGeminiReply(prompt, mode = 'text') {
     }
   } catch (error) {
     console.error("❌ Gemini API error:", error);
-    return "❌ Gemini API error occurred.";
+    return "❌ Gemini API error occurred: " + error.message;
   }
 }
 
