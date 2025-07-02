@@ -1,0 +1,12 @@
+[
+  {
+    "email": "test1@gmail.com",
+    "code": "1234",
+    "endDate": "2025-08-01"
+  },
+  {
+    "email": "test2@gmail.com",
+    "code": "5678",
+    "endDate": "2025-08-15"
+  }
+]
