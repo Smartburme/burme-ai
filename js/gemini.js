@@ -13,17 +13,17 @@ function loadGeminiKey() {
   }
 }
 
-// Core Generate Function
+// Main function to generate Gemini response
 async function generateGeminiReply(prompt, mode = 'text') {
-  // Ensure API key is loaded
+  // Load API Key if not already loaded
   if (!GEMINI_API_KEY) {
     const loaded = loadGeminiKey();
     if (!loaded) {
-      return "❌ Gemini API Key is missing. Please upload it in settings.";
+      return "❌ Gemini API Key is missing. Please upload it in Settings.";
     }
   }
 
-  // Determine API endpoint and request body
+  // Prepare API endpoint & body based on mode
   let endpoint = "";
   let requestBody = {};
 
@@ -44,13 +44,13 @@ async function generateGeminiReply(prompt, mode = 'text') {
       break;
 
     case 'video':
-      return "⚠️ Gemini does not support video generation. Please use a third-party API.";
+      return "⚠️ Gemini does not support video generation yet. Try another mode.";
 
     default:
       return `❌ Unsupported mode: "${mode}"`;
   }
 
-  // Fetch from Gemini API
+  // Send API request
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -60,24 +60,25 @@ async function generateGeminiReply(prompt, mode = 'text') {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Gemini API HTTP ${response.status}:`, errorText);
-      return `❌ API error (${response.status}): ${errorText}`;
+      console.error(`❌ Gemini API error ${response.status}:`, errorText);
+      return `❌ Gemini API error (${response.status}): ${errorText}`;
     }
 
     const data = await response.json();
-    console.log("✅ Gemini API Response:", data);
+    console.log("✅ Gemini API response:", data);
 
-    // Extract result
+    // Parse response
     if (mode === 'image') {
       return data?.candidates?.[0]?.content?.imageUri || "⚠️ No image returned.";
     } else {
       return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No text returned.";
     }
-  } catch (err) {
-    console.error("❌ Gemini API error occurred:", err);
-    return "❌ Gemini API error: " + err.message;
+
+  } catch (error) {
+    console.error("❌ Gemini API error:", error);
+    return "❌ Gemini API error: " + error.message;
   }
 }
 
-// Expose to global
+// Export globally
 window.generateGeminiReply = generateGeminiReply;
