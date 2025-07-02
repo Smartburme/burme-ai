@@ -1,100 +1,101 @@
-// Add message to chat container
-function addMessage(text, sender, loading = false) {
-  const container = document.getElementById("chatContainer");
-  const div = document.createElement("div");
-  div.className = "chat-message " + sender;
-  div.innerText = text;
-  if (loading) div.dataset.loading = "true";
+// Main chat send logic
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  // Show user message
+  addMessage(message, 'user');
+  input.value = '';
+  input.disabled = true;
+
+  // Detect mode from keyword prefix
+  let mode = 'text';
+  const lower = message.toLowerCase();
+  if (lower.startsWith("image:")) mode = 'image';
+  else if (lower.startsWith("code:")) mode = 'code';
+  else if (lower.startsWith("plan:")) mode = 'plan';
+  else if (lower.startsWith("project:")) mode = 'project';
+  else if (lower.startsWith("video:")) mode = 'video';
+
+  try {
+    const reply = await generateGeminiReply(message, mode);
+    addMessage(reply, 'bot');
+  } catch (err) {
+    addMessage('❌ Gemini API error', 'bot');
+    console.error(err);
+  } finally {
+    input.disabled = false;
+  }
+}
+
+// Show message in chat container
+function addMessage(text, sender = 'bot') {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'chat-message ' + sender;
+
+  // Check if it's image URL
+  if (text.startsWith("http") && text.includes("image")) {
+    const img = document.createElement('img');
+    img.src = text;
+    img.className = 'generated-image';
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '10px';
+    img.style.marginTop = '10px';
+    div.innerText = "🖼 Generated Image:";
+    div.appendChild(img);
+  } else {
+    div.innerText = text;
+  }
+
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
-// Remove temporary loading message
-function removeLastBotLoading() {
-  const container = document.getElementById("chatContainer");
-  const messages = container.querySelectorAll(".chat-message.bot");
-  for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].dataset.loading === "true") {
-      container.removeChild(messages[i]);
-      break;
-    }
-  }
-}
-
-// Send message and get Gemini response
-async function sendMessage() {
-  const inputField = document.getElementById("userInput");
-  const message = inputField.value.trim();
-  if (!message) return;
-
-  addMessage(message, "user");
-  inputField.value = "";
-  inputField.disabled = true;
-
-  addMessage("⏳ Generating response...", "bot", true);
-
-  try {
-    const reply = await generateGeminiReply(message, "text");
-    removeLastBotLoading();
-    addMessage(reply, "bot");
-  } catch (err) {
-    console.error("❌ Gemini Error:", err);
-    removeLastBotLoading();
-    addMessage("❌ Gemini API error: " + err.message, "bot");
-  } finally {
-    inputField.disabled = false;
-  }
-}
-
-// Upload image file and generate from filename
-async function uploadImage(event) {
+// Upload single image file
+function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  const prompt = `Generate an image based on: ${file.name}`;
-  addMessage("🖼️ " + prompt, "user");
-  addMessage("⏳ Generating image...", "bot", true);
+  const reader = new FileReader();
+  reader.onload = () => {
+    const imageData = reader.result;
+    addMessage("🖼 Image uploaded. (preview below)", 'user');
 
-  try {
-    const imageUrl = await generateGeminiReply(prompt, "image");
-    removeLastBotLoading();
-    addImageMessage(imageUrl);
-  } catch (err) {
-    console.error("❌ Image Generation Error:", err);
-    removeLastBotLoading();
-    addMessage("❌ Image generation failed: " + err.message, "bot");
-  }
+    const img = document.createElement('img');
+    img.src = imageData;
+    img.style.maxWidth = '100%';
+    img.style.margin = '10px 0';
+    img.style.borderRadius = '10px';
+
+    const container = document.getElementById('chatContainer');
+    container.appendChild(img);
+    container.scrollTop = container.scrollHeight;
+  };
+  reader.readAsDataURL(file);
 }
 
-// Add image to chat container
-function addImageMessage(url) {
-  const container = document.getElementById("chatContainer");
-  const img = document.createElement("img");
-  img.src = url;
-  img.alt = "Generated Image";
-  img.className = "chat-message bot";
-  container.appendChild(img);
-  container.scrollTop = container.scrollHeight;
-}
-
-// Upload folder (Stub)
+// Upload folder logic (example only)
 function uploadFolder(event) {
   const files = event.target.files;
-  if (files.length > 0) {
-    addMessage(`📁 Folder with ${files.length} files uploaded`, "user");
+  if (!files || files.length === 0) return;
+
+  addMessage(`📁 Folder uploaded with ${files.length} files.`, 'user');
+  // You can loop and show each filename if needed
+}
+
+// Upload link input
+function triggerLinkUpload() {
+  const link = prompt("Paste link to analyze or upload:");
+  if (link && link.trim()) {
+    addMessage(`🔗 Link uploaded: ${link}`, 'user');
+    // You can add additional logic to fetch/analyze link content
   }
 }
 
-// Upload link (Stub)
-function uploadLink() {
-  const link = prompt("Enter a link to upload or analyze:");
-  if (link) {
-    addMessage(`🔗 Link provided: ${link}`, "user");
-  }
-}
-
-// Export to global
+// Export global functions
 window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
 window.uploadFolder = uploadFolder;
-window.uploadLink = uploadLink;
+window.triggerLinkUpload = triggerLinkUpload;
