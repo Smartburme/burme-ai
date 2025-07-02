@@ -3,7 +3,7 @@ function addMessage(text, sender, loading = false) {
   const container = document.getElementById("chatContainer");
   const div = document.createElement("div");
   div.className = "chat-message " + sender;
-  div.textContent = text;
+  div.innerText = text;
   if (loading) div.dataset.loading = "true";
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
@@ -31,16 +31,16 @@ async function sendMessage() {
   inputField.value = "";
   inputField.disabled = true;
 
-  addMessage("⏳ Generating response...", "bot", "loading");
+  addMessage("⏳ Generating response...", "bot", true);
 
   try {
     const reply = await generateGeminiReply(message, "text");
     removeLastBotLoading();
     addMessage(reply, "bot");
   } catch (err) {
+    console.error("❌ Gemini Error:", err);
     removeLastBotLoading();
     addMessage("❌ Gemini API error: " + err.message, "bot");
-    console.error(err);
   } finally {
     inputField.disabled = false;
   }
@@ -53,17 +53,16 @@ async function uploadImage(event) {
 
   const prompt = `Generate an image based on: ${file.name}`;
   addMessage("🖼️ " + prompt, "user");
-
-  addMessage("⏳ Generating image...", "bot", "loading");
+  addMessage("⏳ Generating image...", "bot", true);
 
   try {
     const imageUrl = await generateGeminiReply(prompt, "image");
     removeLastBotLoading();
     addImageMessage(imageUrl);
   } catch (err) {
+    console.error("❌ Image Generation Error:", err);
     removeLastBotLoading();
     addMessage("❌ Image generation failed: " + err.message, "bot");
-    console.error(err);
   }
 }
 
@@ -78,7 +77,7 @@ function addImageMessage(url) {
   container.scrollTop = container.scrollHeight;
 }
 
-// Upload folder (Stub logic)
+// Upload folder (Stub)
 function uploadFolder(event) {
   const files = event.target.files;
   if (files.length > 0) {
@@ -86,7 +85,7 @@ function uploadFolder(event) {
   }
 }
 
-// Upload link (Stub logic)
+// Upload link (Stub)
 function uploadLink() {
   const link = prompt("Enter a link to upload or analyze:");
   if (link) {
@@ -94,7 +93,7 @@ function uploadLink() {
   }
 }
 
-// Export to window
+// Export to global
 window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
 window.uploadFolder = uploadFolder;
