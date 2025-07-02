@@ -1,67 +1,112 @@
-// Send user message and get Gemini reply (text mode)
+// Chat container reference
+const chatContainer = document.getElementById('chatContainer');
+const inputField = document.getElementById('userInput');
+
+// ✅ Send user message and get Gemini reply (text mode)
 async function sendMessage() {
-  const inputField = document.getElementById('userInput');
   const userText = inputField.value.trim();
   if (!userText) return;
 
-  // Show user message
+  // Show user message in chat
   addMessage(userText, 'user');
   inputField.value = '';
   inputField.disabled = true;
 
+  // Add loading message
+  const loadingId = addLoadingMessage('bot');
+
   try {
-    // Gemini API call (text mode)
+    // Call Gemini API for text generation
     const reply = await generateGeminiReply(userText, 'text');
-    addMessage(reply, 'bot');
+    updateMessageById(loadingId, reply);
   } catch (err) {
-    addMessage("❌ Gemini API error", 'bot');
+    updateMessageById(loadingId, "❌ Gemini API error: " + err.message);
   } finally {
     inputField.disabled = false;
   }
 }
 
-// Add text message to chat container
-function addMessage(text, sender) {
-  const container = document.getElementById('chatContainer');
-  const div = document.createElement('div');
-  div.className = 'chat-message ' + sender;
-  div.innerText = text;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-// Handle image file upload event
+// ✅ Upload and generate image from file
 async function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Example: Use file name as image prompt
-  const prompt = `Generate an image based on: ${file.name}`;
+  const fileName = file.name.replace(/\.[^/.]+$/, ""); // remove extension
+  const prompt = `Generate an image based on: ${fileName}`;
+
+  // Add image upload preview as user message
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    addImageMessage(e.target.result, 'user');
+  };
+  reader.readAsDataURL(file);
+
+  // Add loading message
+  const loadingId = addLoadingMessage('bot');
 
   try {
-    // Gemini API call for image generation
     const imageUrl = await generateGeminiReply(prompt, 'image');
-    addImageMessage(imageUrl);
+    if (imageUrl.startsWith('http')) {
+      updateMessageImageById(loadingId, imageUrl);
+    } else {
+      updateMessageById(loadingId, "⚠️ Image not generated.");
+    }
   } catch (err) {
-    addMessage('❌ Image generation error', 'bot');
+    updateMessageById(loadingId, '❌ Image generation error: ' + err.message);
   }
 }
 
-// Add image message to chat container
-function addImageMessage(url) {
-  if (!url) {
-    addMessage('⚠️ No image URL returned', 'bot');
-    return;
-  }
-  const container = document.getElementById('chatContainer');
+// ✅ Add a text message to chat
+function addMessage(text, sender) {
+  const div = document.createElement('div');
+  div.className = 'chat-message ' + sender;
+  div.innerText = text;
+  chatContainer.appendChild(div);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  return div; // return element if needed
+}
+
+// ✅ Add image message to chat
+function addImageMessage(url, sender = 'bot') {
   const img = document.createElement('img');
   img.src = url;
   img.alt = "Generated Image";
-  img.className = 'generated-image chat-message bot';
-  container.appendChild(img);
-  container.scrollTop = container.scrollHeight;
+  img.className = 'generated-image chat-message ' + sender;
+  chatContainer.appendChild(img);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  return img;
 }
 
-// Export functions globally if needed
+// ✅ Add temporary loading message (spinner style)
+function addLoadingMessage(sender = 'bot') {
+  const div = document.createElement('div');
+  div.className = 'chat-message ' + sender;
+  div.innerText = "⏳ Thinking...";
+  const id = 'msg-' + Date.now();
+  div.dataset.id = id;
+  chatContainer.appendChild(div);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  return id;
+}
+
+// ✅ Update loading message to final text
+function updateMessageById(id, newText) {
+  const target = [...chatContainer.children].find(el => el.dataset?.id === id);
+  if (target) target.innerText = newText;
+}
+
+// ✅ Replace loading with image
+function updateMessageImageById(id, imageUrl) {
+  const old = [...chatContainer.children].find(el => el.dataset?.id === id);
+  if (old) {
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = "Generated Image";
+    img.className = 'generated-image chat-message bot';
+    old.replaceWith(img);
+  }
+}
+
+// ✅ Expose to window for HTML inline calls
 window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
