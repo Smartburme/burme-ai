@@ -2,74 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>About - Burme AI</title>
+  <title>Burme AI - Settings</title>
   <link rel="icon" href="assets/icon.jpg" />
   <style>
-    /* No frame, full background */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    body {
       background: #000;
       color: #00ffff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 600px;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
       padding: 20px;
-      background: rgba(0, 255, 255, 0.05);
-      border-radius: 12px;
-      box-shadow: 0 0 15px #00ffff44;
     }
-
     h1 {
-      margin-bottom: 15px;
-      font-weight: 900;
-      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 20px;
     }
-
-    p {
-      margin: 8px 0;
-      font-size: 1rem;
-      line-height: 1.5;
+    label, input, button {
+      display: block;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 400px;
     }
-
-    a.back {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      font-size: 20px;
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #222;
       color: #00ffff;
-      text-decoration: none;
-      font-weight: bold;
-      user-select: none;
+      font-size: 16px;
     }
-
-    a.back:hover {
-      text-decoration: underline;
+    button {
+      background: #00ffff;
+      color: #000;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <a href="mainchat.html" class="back">← Back</a>
-  <div class="container">
-    <h1>Burme AI Assistant</h1>
-    <p>
-      Burme AI is your intelligent assistant designed to help you with text, image, code, and video generation. It uses the power of AI to provide useful, creative, and efficient responses.
-    </p>
-    <hr style="border-color: #00ffff44; margin: 20px 0;" />
-    <h2>Developer Info</h2>
-    <p><strong>Name:</strong> Mg Aung Myo Kyaw</p>
-    <p><strong>Country:</strong> Naypyitaw, Myanmar</p>
-    <p><strong>Email:</strong> <a href="mailto:wayne.mm.92@gmail.com" style="color:#00ffff;">wayne.mm.92@gmail.com</a></p>
-    <p><strong>Phone:</strong> 09677740154</p>
-    <p><strong>Purpose:</strong> To build an AI assistant that supports multi-modal generation and enhances user experience in Burmese language.</p>
-  </div>
+  <h1>Burme AI Settings</h1>
+  <label for="apiKeyInput">Upload Gemini API Key</label>
+  <input type="text" id="apiKeyInput" placeholder="Paste your Gemini API Key here" autocomplete="off" />
+  <button id="saveApiKeyBtn">Save API Key</button>
+  <div id="status"></div>
+
+  <script>
+    // Load existing key from localStorage
+    const input = document.getElementById('apiKeyInput');
+    const status = document.getElementById('status');
+
+    window.onload = () => {
+      const savedKey = localStorage.getItem('GEMINI_API_KEY') || '';
+      input.value = savedKey;
+    };
+
+    document.getElementById('saveApiKeyBtn').onclick = () => {
+      const key = input.value.trim();
+      if (!key) {
+        status.textContent = '❌ Please enter a valid API key.';
+        return;
+      }
+      localStorage.setItem('GEMINI_API_KEY', key);
+      status.textContent = '✅ Gemini API Key saved successfully!';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    };
+  </script>
 </body>
 </html>
