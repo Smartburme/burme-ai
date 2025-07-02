@@ -1,101 +1,150 @@
-// Main chat send logic
+// chat.js
+
+// Chat container element
+const chatContainer = document.getElementById('chatContainer');
+const userInput = document.getElementById('userInput');
+
+// Send user message to Gemini API and show response
 async function sendMessage() {
-  const input = document.getElementById('userInput');
-  const message = input.value.trim();
-  if (!message) return;
+  const text = userInput.value.trim();
+  if (!text) return;
 
-  // Show user message
-  addMessage(message, 'user');
-  input.value = '';
-  input.disabled = true;
+  addMessage(text, 'user');
+  userInput.value = '';
+  userInput.disabled = true;
 
-  // Detect mode from keyword prefix
-  let mode = 'text';
-  const lower = message.toLowerCase();
-  if (lower.startsWith("image:")) mode = 'image';
-  else if (lower.startsWith("code:")) mode = 'code';
-  else if (lower.startsWith("plan:")) mode = 'plan';
-  else if (lower.startsWith("project:")) mode = 'project';
-  else if (lower.startsWith("video:")) mode = 'video';
+  // Show loader
+  const loader = showLoader(chatContainer);
 
   try {
-    const reply = await generateGeminiReply(message, mode);
-    addMessage(reply, 'bot');
+    // Detect mode based on simple heuristics (could improve)
+    // Here just assume text mode for simplicity
+    const mode = 'text';
+
+    const reply = await generateGeminiReply(text, mode);
+    removeLoader(loader);
+
+    if (isValidUrl(reply)) {
+      addImageMessage(reply); // If reply is a URL (image)
+    } else {
+      addMessage(reply, 'bot');
+    }
+
   } catch (err) {
-    addMessage('❌ Gemini API error', 'bot');
-    console.error(err);
+    removeLoader(loader);
+    addMessage("❌ Gemini API error: " + err.message, 'bot');
   } finally {
-    input.disabled = false;
+    userInput.disabled = false;
+    userInput.focus();
   }
 }
 
-// Show message in chat container
+// Add text message to chat container
 function addMessage(text, sender = 'bot') {
-  const container = document.getElementById('chatContainer');
   const div = document.createElement('div');
-  div.className = 'chat-message ' + sender;
-
-  // Check if it's image URL
-  if (text.startsWith("http") && text.includes("image")) {
-    const img = document.createElement('img');
-    img.src = text;
-    img.className = 'generated-image';
-    img.style.maxWidth = '100%';
-    img.style.borderRadius = '10px';
-    img.style.marginTop = '10px';
-    div.innerText = "🖼 Generated Image:";
-    div.appendChild(img);
-  } else {
-    div.innerText = text;
-  }
-
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  div.className = `chat-message ${sender}`;
+  div.textContent = text;
+  chatContainer.appendChild(div);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Upload single image file
+// Add image message to chat container
+function addImageMessage(url) {
+  if (!url) {
+    addMessage('⚠️ No image URL.', 'bot');
+    return;
+  }
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = 'Generated Image';
+  img.className = 'chat-message bot generated-image';
+  chatContainer.appendChild(img);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Show loader text during API call
+function showLoader(container) {
+  const loader = document.createElement('div');
+  loader.className = 'loader';
+  loader.textContent = '⏳ Thinking...';
+  loader.style.cssText = `
+    color: #00ffff;
+    font-style: italic;
+    margin: 10px;
+    font-size: 14px;
+    user-select: none;
+  `;
+  container.appendChild(loader);
+  container.scrollTop = container.scrollHeight;
+  return loader;
+}
+
+// Remove loader element
+function removeLoader(loader) {
+  if (loader && loader.parentNode) {
+    loader.parentNode.removeChild(loader);
+  }
+}
+
+// Upload image file handler
 function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    const imageData = reader.result;
-    addMessage("🖼 Image uploaded. (preview below)", 'user');
+  addMessage(`Uploading image: ${file.name}`, 'user');
 
-    const img = document.createElement('img');
-    img.src = imageData;
-    img.style.maxWidth = '100%';
-    img.style.margin = '10px 0';
-    img.style.borderRadius = '10px';
+  // You can implement your upload logic here or generate prompt
+  // For demo, generate prompt from file name
+  const prompt = `Generate an image based on: ${file.name}`;
 
-    const container = document.getElementById('chatContainer');
-    container.appendChild(img);
-    container.scrollTop = container.scrollHeight;
-  };
-  reader.readAsDataURL(file);
+  // Show loader
+  const loader = showLoader(chatContainer);
+
+  generateGeminiReply(prompt, 'image')
+    .then((imageUrl) => {
+      removeLoader(loader);
+      if (imageUrl && isValidUrl(imageUrl)) {
+        addImageMessage(imageUrl);
+      } else {
+        addMessage('⚠️ Failed to generate image.', 'bot');
+      }
+    })
+    .catch((err) => {
+      removeLoader(loader);
+      addMessage('❌ Image generation error: ' + err.message, 'bot');
+    });
 }
 
-// Upload folder logic (example only)
+// Upload folder handler (just show alert for demo)
 function uploadFolder(event) {
-  const files = event.target.files;
-  if (!files || files.length === 0) return;
-
-  addMessage(`📁 Folder uploaded with ${files.length} files.`, 'user');
-  // You can loop and show each filename if needed
+  alert("Folder upload is not implemented yet.");
+  // You can extend this function to handle folder contents if needed
 }
 
-// Upload link input
-function triggerLinkUpload() {
-  const link = prompt("Paste link to analyze or upload:");
-  if (link && link.trim()) {
-    addMessage(`🔗 Link uploaded: ${link}`, 'user');
-    // You can add additional logic to fetch/analyze link content
+// Upload link handler (prompt user for link and process)
+function uploadLink() {
+  const link = prompt("Enter link to upload or analyze:");
+  if (link) {
+    addMessage(`Analyzing link: ${link}`, 'user');
+    // Implement your link handling logic here, for example:
+    // generateGeminiReply(`Analyze this link: ${link}`, 'text').then(...)
   }
 }
 
-// Export global functions
+// Utility to validate URLs (basic check)
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Export functions globally for inline HTML use
 window.sendMessage = sendMessage;
+window.addMessage = addMessage;
+window.addImageMessage = addImageMessage;
 window.uploadImage = uploadImage;
 window.uploadFolder = uploadFolder;
-window.triggerLinkUpload = triggerLinkUpload;
+window.uploadLink = uploadLink;
