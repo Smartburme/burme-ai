@@ -133,7 +133,10 @@ img.generated-image {
   <div class="title-bar">
     <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
-    <img src="assets/icon.jpg" alt="icon" width="30" height="30" style="border-radius: 50%;" />
+    <div>
+      <button class="icon-button" onclick="document.getElementById('keyLoader').click()">🔐 Load Key</button>
+      <input type="file" id="keyLoader" accept=".txt" style="display:none" onchange="loadGeminiKeyFromFile(event)" />
+    </div>
   </div>  <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search..." />
     <select id="searchType">
@@ -155,6 +158,38 @@ img.generated-image {
       <button class="icon-button" onclick="uploadLink()">Upload Link</button>
     </div>
   </div>  <script src="js/gemini.js"></script>  <script>
+    let GEMINI_API_KEY = '';
+
+    function loadGeminiKeyFromFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        GEMINI_API_KEY = e.target.result.trim();
+        alert("🔐 Gemini API Key loaded.");
+      };
+      reader.readAsText(file);
+    }
+
+    async function generateGeminiReply(message, mode = 'text') {
+      if (!GEMINI_API_KEY) return "❌ Gemini API Key မရှိသေးပါ။";
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+      let requestBody = {
+        contents: [{ parts: [{ text: message }] }]
+      };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await res.json();
+      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠ Gemini မှ ဖြေချက် မရရှိပါ။";
+    }
+
     async function sendMessage() {
       const input = document.getElementById('userInput');
       const text = input.value.trim();
