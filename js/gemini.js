@@ -1,8 +1,17 @@
 let GEMINI_API_KEY = '';
 const FALLBACK_API_KEY = 'YOUR_FALLBACK_KEY_HERE'; // optional fallback key
 
-// Load Gemini API Key from GitHub-hosted .env file
+// Load Gemini API Key function: localStorage first, fallback to .env fetch
 async function fetchGeminiKey() {
+  // 1. localStorage မှာ key ရှိမရှိစစ်
+  const savedKey = localStorage.getItem('GEMINI_API_KEY');
+  if (savedKey && savedKey.trim() !== '') {
+    GEMINI_API_KEY = savedKey.trim();
+    console.log("✅ GEMINI API Key loaded from localStorage");
+    return;
+  }
+
+  // 2. localStorage မရှိ/မတည့်ပါက GitHub raw .env ဖိုင်မှ ရယူရန်
   try {
     const response = await fetch("https://raw.githubusercontent.com/Smartburme/burme-ai.io/main/assets/.env");
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
