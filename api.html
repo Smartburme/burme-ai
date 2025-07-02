@@ -2,97 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burme AI - API Access</title>
+  <title>API Access - Burme AI</title>
+  <link rel="icon" href="assets/icon.jpg" />
   <style>
     body {
       background: #000;
       color: #00ffff;
       font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
     }
     input {
-      width: 300px;
-      padding: 12px;
-      margin: 10px 0;
+      width: 100%;
+      max-width: 350px;
+      padding: 10px;
       border-radius: 8px;
       border: none;
       background: #222;
       color: #00ffff;
+      margin-bottom: 15px;
       font-size: 16px;
     }
     button {
-      width: 300px;
-      padding: 12px;
       background: #00ffff;
       border: none;
       border-radius: 8px;
       color: #000;
       font-weight: bold;
-      cursor: pointer;
+      padding: 10px 20px;
       font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
     }
-    .message {
-      margin-top: 20px;
+    #message {
       font-weight: bold;
-      text-align: center;
+      height: 24px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>API Access</h1>
-  <input type="email" id="email" placeholder="Your Email" />
-  <input type="text" id="code" placeholder="Your API Code" />
-  <button onclick="checkAccess()">Enter</button>
-  <div class="message" id="message"></div>
+  <h1>API Access Control</h1>
+  <input type="email" id="emailInput" placeholder="Enter your Gmail" autocomplete="off" />
+  <input type="text" id="codeInput" placeholder="Enter 4-digit Code" maxlength="4" />
+  <button onclick="checkAccess()">Access API</button>
+  <div id="message"></div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyXXXXXXX",
-      authDomain: "yourproject.firebaseapp.com",
-      databaseURL: "https://yourproject-default-rtdb.firebaseio.com",
-      projectId: "yourproject",
-      storageBucket: "yourproject.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdefghijk"
-    };
+    let users = JSON.parse(localStorage.getItem('paidUsers') || '{}');
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    function checkAccess() {
+      const emailRaw = document.getElementById('emailInput').value.trim();
+      const code = document.getElementById('codeInput').value.trim();
+      const msgEl = document.getElementById('message');
+      msgEl.style.color = 'red';
 
-    async function checkAccess() {
-      const email = document.getElementById('email').value.trim();
-      const code = document.getElementById('code').value.trim();
-      const message = document.getElementById('message');
-      if (!email || !code) {
-        message.textContent = "❌ Please enter both Email and API Code.";
+      if (!emailRaw || code.length !== 4) {
+        msgEl.textContent = 'Please enter valid email and 4-digit code.';
         return;
       }
-      const key = email.replace(/\./g, ',');
-      const snapshot = await db.ref('paidUsers/' + key).get();
-      if (!snapshot.exists()) {
-        message.textContent = "❌ User not found or unpaid.";
+
+      const email = emailRaw.replace(/\./g, ',');
+      const user = users[email];
+      if (!user) {
+        msgEl.textContent = 'User not found. Please register.';
         return;
       }
-      const user = snapshot.val();
-      if (!user.paid) {
-        message.textContent = "❌ User is not marked as paid.";
+      if (user.code !== code) {
+        msgEl.textContent = 'Incorrect code.';
         return;
       }
-      if (user.apiCode !== code) {
-        message.textContent = "❌ Incorrect API code.";
-        return;
-      }
-      message.style.color = '#0f0';
-      message.textContent = "✅ Access granted! You can now use the API.";
-      // ဒီနေရာမှာ API access လုပ်စေမယ့် logic ထည့်ပါ
+
+      msgEl.style.color = '#0f0';
+      msgEl.textContent = 'Access granted! Redirecting...';
+
+      // Redirect after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = 'api_service.html'; // Your actual API page URL here
+      }, 1500);
     }
   </script>
 </body>
