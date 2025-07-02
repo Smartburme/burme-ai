@@ -1,83 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Burme AI - User Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setting - Burme Ai</title>
+  <link rel="icon" href="assets/icon.jpg">
   <style>
     body {
-      background: #000;
-      color: #00ffff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
       background: #111;
       color: #00ffff;
-      border-radius: 8px;
-      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
     }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #00ffff55;
-      text-align: left;
+    h1 {
+      margin-bottom: 10px;
     }
-    th {
-      background: #002222;
+    label, input, button {
+      display: block;
+      margin-top: 10px;
+      width: 100%;
     }
-    tr:hover {
-      background: #004444;
-    }
-    /* Link style */
-    a {
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #00ffff;
+      background: #222;
       color: #00ffff;
-      text-decoration: underline;
-      cursor: pointer;
+    }
+    button:hover {
+      background: #00ffff;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <h1>User Control Panel</h1>
+  <h1>Setting</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>User Email</th>
-        <th>Code</th>
-        <th>End Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody">
-      <!-- Data will be dynamically inserted here -->
-    </tbody>
-  </table>
+  <h2>App Information</h2>
+  <p>Burme AI helps with generating and interacting with various media like text, images, and more.</p>
+
+  <h2>User Information</h2>
+  <label for="email">Enter your Gmail:</label>
+  <input type="email" id="email" placeholder="user@example.com">
+
+  <label for="code">Enter your Code:</label>
+  <input type="text" id="code" maxlength="4" placeholder="Enter 4-digit code">
+
+  <button onclick="goToUserControl()">Proceed to User Control</button>
 
   <script>
-    // Sample data to demo, replace with actual data fetching logic
-    const users = [
-      { email: "wayne.mm.92@gmail.com", code: "0000", endDate: "2025-12-31" },
-      { email: "user1@example.com", code: "1234", endDate: "2025-10-01" }
-    ];
+    // Redirect to usercontrol.html for validation
+    function goToUserControl() {
+      const email = document.getElementById('email').value.trim();
+      const code = document.getElementById('code').value.trim();
 
-    const tbody = document.getElementById('userTableBody');
-    users.forEach(user => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${user.email}</td>
-        <td>${user.code}</td>
-        <td>${user.endDate}</td>
-        <td><a href="#" onclick="alert('Edit user: ${user.email}')">Edit</a></td>
-      `;
-      tbody.appendChild(tr);
-    });
+      if (!email || !code) {
+        alert("Please fill in both email and code.");
+        return;
+      }
+
+      // Save email and code to localStorage for validation in usercontrol.html
+      localStorage.setItem("email", email);
+      localStorage.setItem("code", code);
+
+      // Redirect to usercontrol.html
+      window.location.href = "usercontrol.html";
+    }
   </script>
 </body>
 </html>
