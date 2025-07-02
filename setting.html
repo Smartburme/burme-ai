@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burme AI - Setting</title>
+  <title>Burme AI - Settings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -13,87 +13,89 @@
     }
     h2 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+    .section {
+      border: 1px solid #00ffff55;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #111;
+    }
+    .section h3 {
+      margin-top: 0;
+      color: #00ffff;
     }
     input, button {
       padding: 10px;
-      margin: 8px 0;
+      margin: 5px 0;
       width: 100%;
+      max-width: 400px;
+      border-radius: 6px;
       border: none;
-      border-radius: 8px;
       font-size: 16px;
     }
     button {
-      background: #00ffff;
+      background-color: #00ffff;
       color: #000;
       font-weight: bold;
       cursor: pointer;
     }
-    .frame {
-      border: 1px solid #00ffff55;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      background: #111;
+    .center {
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h2>⚙️ Setting</h2>
+  <h2>⚙️ Burme AI - Settings</h2>
 
-  <div class="frame">
-    <h3>📘 About Burme AI</h3>
-    <p>Burme AI Assistant သည် မြန်မာပြည်သားများအတွက် AI နည်းပညာများကို လွယ်ကူစွာ အသုံးပြုနိုင်ရန် တည်ဆောက်ထားသော Web App ဖြစ်သည်။</p>
+  <div class="section">
+    <h3>📘 App Info</h3>
+    <p>Burme AI Assistant သည် မြန်မာဘာသာဖြင့် ပြုလုပ်ထားသော AI ဝဘ်ဆာဗာတစ်ခုဖြစ်ပြီး Google Gemini နှင့် OpenAI API များကို အသုံးပြုသည်။</p>
   </div>
 
-  <div class="frame">
-    <h3>👨‍💼 Admin Info</h3>
+  <div class="section">
+    <h3>👤 Admin Info</h3>
     <p><b>Name:</b> Mg Aung Myo Kyaw</p>
     <p><b>Country:</b> Naypyitaw, Myanmar</p>
     <p><b>Email:</b> wayne.mm.92@gmail.com</p>
     <p><b>Phone:</b> 09677740154</p>
   </div>
 
-  <div class="frame">
-    <h3>🔐 API Access Control</h3>
-    <input type="email" id="emailInput" placeholder="Enter your Gmail">
-    <input type="text" id="codeInput" placeholder="Enter 4-digit Code">
-    <button onclick="checkAccess()">🔓 Upload API</button>
+  <div class="section center">
+    <h3>🔐 API Access</h3>
+    <p>Gmail နှင့် Code ကို ဖြည့်ပြီး <b>API Page</b> သို့ ဝင်ပါ</p>
+    <input type="email" id="userEmail" placeholder="Enter your Gmail" />
+    <input type="text" id="userCode" placeholder="Enter your 4-digit Code" maxlength="4" />
+    <button onclick="checkUserAccess()">➡️ Upload API</button>
   </div>
 
   <script>
-    async function checkAccess() {
-      const email = document.getElementById('emailInput').value.trim();
-      const code = document.getElementById('codeInput').value.trim();
+    async function checkUserAccess() {
+      const email = document.getElementById("userEmail").value.trim().toLowerCase();
+      const code = document.getElementById("userCode").value.trim();
 
-      if (!email || !code) {
-        alert("❗ Please enter both Gmail and Code.");
-        return;
-      }
+      if (!email || !code) return alert("Please enter both email and code");
 
       try {
         const res = await fetch("https://raw.githubusercontent.com/Smartburme/burme-ai-data/main/assets/users.json");
         const users = await res.json();
-        const user = users.find(u => u.email === email && u.code === code);
 
-        if (!user) {
-          alert("❌ Invalid Email or Code.");
-          return;
+        const found = users.find(user =>
+          user.email.toLowerCase() === email &&
+          user.code === code
+        );
+
+        if (found) {
+          alert("✅ Access Granted!");
+          window.location.href = "api.html";
+        } else {
+          alert("❌ Invalid email or code");
         }
-
-        // Check End Date
-        const today = new Date().toISOString().split("T")[0];
-        if (user.endDate < today) {
-          alert("❌ Your access expired on " + user.endDate);
-          return;
-        }
-
-        alert("✅ Access granted. Redirecting to API page...");
-        window.location.href = "api.html";
-
-      } catch (err) {
-        console.error(err);
-        alert("⚠️ Error verifying access.");
+      } catch (e) {
+        console.error("Error loading users.json:", e);
+        alert("❌ Could not check user data");
       }
     }
   </script>
