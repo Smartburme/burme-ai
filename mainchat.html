@@ -13,131 +13,143 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-    }.title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 0 6px #00ffff88;
-}
-
-.title-text {
-  flex: 1;
-  text-align: center;
-  font-weight: bold;
-}
-
-.chat-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background: #111;
-}
-
-.chat-message {
-  background: rgba(0, 255, 255, 0.1);
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  margin: 5px;
-}
-
-.chat-message.user {
-  background: rgba(0, 255, 255, 0.4);
-  text-align: right;
-}
-
-.chat-message.bot {
-  border-left: 3px solid #00ffff;
-}
-
-.search-row {
-  padding: 10px;
-  background: #111;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.search-row input {
-  padding: 6px;
-  border-radius: 6px;
-  border: none;
-  width: 70%;
-}
-
-.input-bar {
-  padding: 8px;
-  background: #000;
-  box-shadow: 0 -2px 8px #00ffff55;
-  display: flex;
-  align-items: center;
-}
-
-.input-wrapper {
-  position: relative;
-  flex: 1;
-}
-
-#userInput {
-  width: 100%;
-  padding: 10px 80px 10px 10px;
-  border-radius: 10px;
-  border: none;
-  background: #222;
-  color: #00ffff;
-  resize: none;
-}
-
-.icon-inside {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 5px;
-}
-
-.icon-inside button {
-  background: none;
-  border: none;
-  color: #00ffff;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.send-button {
-  margin-left: 10px;
-  background: #00ffff;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-}
-
+    }
+    .title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 6px #00ffff88;
+    }
+    .title-text {
+      flex: 1;
+      text-align: center;
+      font-weight: bold;
+    }
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      background: #111;
+    }
+    .chat-message {
+      background: rgba(0, 255, 255, 0.1);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 5px;
+    }
+    .chat-message.user {
+      background: rgba(0, 255, 255, 0.4);
+      text-align: right;
+    }
+    .chat-message.bot {
+      border-left: 3px solid #00ffff;
+    }
+    .search-row {
+      padding: 10px;
+      background: #111;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .search-row input {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      width: 70%;
+    }
+    .input-bar {
+      padding: 8px;
+      background: #000;
+      box-shadow: 0 -2px 8px #00ffff55;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    #userInput {
+      width: 100%;
+      padding: 10px 80px 10px 10px;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: #00ffff;
+      resize: none;
+    }
+    .icon-inside {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 5px;
+    }
+    .icon-inside button {
+      background: none;
+      border: none;
+      color: #00ffff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .send-button {
+      margin-left: 10px;
+      background: #00ffff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="title-bar">
-    <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;"></a>
+    <a href="setting.html" style="text-decoration: none; color: #00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
     <img src="assets/icon.jpg" width="30" height="30" style="border-radius: 50%;">
-  </div>  <!-- Search Row -->  <div class="search-row">
+  </div>  <div class="search-row">
     <input id="searchInput" type="text" placeholder="Search...">
-    <button onclick="runSearch()" style="background: none; border: none; color: #00ffff; font-size: 20px; cursor: pointer;">🟰</button>
-  </div>  <!-- Chat Body -->  <div class="chat-container" id="chatContainer"></div>  <!-- Input Bar -->  <div class="input-bar">
+    <button onclick="runSearch()" style="background: none; border: none; color: #00ffff; font-size: 20px; cursor: pointer;">🔍</button>
+  </div>  <div class="chat-container" id="chatContainer"></div>  <div class="input-bar">
     <div class="input-wrapper">
       <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
       <div class="icon-inside">
         <button onclick="triggerUpload()">🖼️</button>
-        <button onclick="uploadFolder()">🪁</button>
-        <button onclick="uploadLink()">🎗️</button>
+        <button onclick="triggerFolderUpload()">📁</button>
+        <button onclick="triggerLinkUpload()">🔗</button>
       </div>
     </div>
-    <button class="send-button" onclick="sendMessage()">🏹</button>
-  </div>  <!-- Hidden Inputs -->  <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)">
-  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display: none;" onchange="uploadFolder(event)">  <!-- Scripts -->  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script></body>
+    <button class="send-button" onclick="sendMessage()">Send</button>
+  </div>  <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="uploadImage(event)">
+  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display: none;" onchange="uploadFolder(event)">  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script>  <script>
+    function runSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) return;
+
+      const encoded = encodeURIComponent(query);
+      const options = [
+        `https://www.google.com/search?q=${encoded}`,
+        `https://www.pinterest.com/search/pins/?q=${encoded}`,
+        `https://www.youtube.com/results?search_query=${encoded}`,
+        `https://html.duckduckgo.com/?q=${encoded}`
+      ];
+
+      for (let url of options) window.open(url, '_blank');
+    }
+    function triggerUpload() {
+      document.getElementById('imageUpload').click();
+    }
+    function triggerFolderUpload() {
+      document.getElementById('folderUpload').click();
+    }
+    function triggerLinkUpload() {
+      const link = prompt("Enter link to upload or analyze:");
+      if (link) alert("Uploading link: " + link); // Replace with actual logic
+    }
+  </script></body>
 </html>
