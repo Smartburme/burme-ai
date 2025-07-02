@@ -1,27 +1,102 @@
-// js/chat.js
+// Send message and get Gemini response
+async function sendMessage() {
+  const inputField = document.getElementById("userInput");
+  const message = inputField.value.trim();
+  if (!message) return;
 
-// Send user message and get Gemini reply async function sendMessage() { const input = document.getElementById('userInput'); const text = input.value.trim(); if (!text) return;
+  addMessage(message, "user");
+  inputField.value = "";
+  inputField.disabled = true;
 
-addMessage(text, 'user'); input.value = ''; input.disabled = true; addMessage('⏳...', 'bot');
+  addMessage("⏳ Generating response...", "bot", "loading");
 
-try { const reply = await generateGeminiReply(text, 'text'); removeLoading(); addMessage(reply, 'bot'); } catch (e) { removeLoading(); addMessage('❌ Gemini API error', 'bot'); } finally { input.disabled = false; } }
+  try {
+    const reply = await generateGeminiReply(message, "text");
+    removeLastBotLoading();
+    addMessage(reply, "bot");
+  } catch (err) {
+    removeLastBotLoading();
+    addMessage("❌ Gemini API error", "bot");
+    console.error(err);
+  } finally {
+    inputField.disabled = false;
+  }
+}
 
-function addMessage(text, sender) { const container = document.getElementById('chatContainer'); const div = document.createElement('div'); div.className = 'chat-message ' + sender; div.innerText = text; container.appendChild(div); container.scrollTop = container.scrollHeight; }
+// Add message to chat container
+function addMessage(text, sender, loading = false) {
+  const container = document.getElementById("chatContainer");
+  const div = document.createElement("div");
+  div.className = "chat-message " + sender;
+  div.innerText = text;
+  if (loading) div.dataset.loading = "true";
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
 
-function removeLoading() { const container = document.getElementById('chatContainer'); const last = container.lastChild; if (last && last.innerText === '⏳...') { container.removeChild(last); } }
+// Remove temporary loading message
+function removeLastBotLoading() {
+  const container = document.getElementById("chatContainer");
+  const messages = container.querySelectorAll(".chat-message.bot");
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].dataset.loading === "true") {
+      container.removeChild(messages[i]);
+      break;
+    }
+  }
+}
 
-function triggerUpload() { document.getElementById('imageUpload').click(); }
+// Upload image file and generate from filename
+async function uploadImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-function uploadImage(event) { const file = event.target.files[0]; if (!file) return; const prompt = Generate an image based on: ${file.name}; generateGeminiReply(prompt, 'image').then(url => addImageMessage(url)); }
+  const prompt = `Generate an image based on: ${file.name}`;
+  addMessage("🖼️ " + prompt, "user");
 
-function uploadFolder(event) { const files = event.target.files; if (!files.length) return; addMessage(📁 Uploaded folder with ${files.length} file(s)., 'user'); }
+  addMessage("⏳ Generating image...", "bot", "loading");
 
-function uploadLink() { const url = prompt('Paste a link:'); if (url) { addMessage(🔗 Link provided: ${url}, 'user'); } }
+  try {
+    const imageUrl = await generateGeminiReply(prompt, "image");
+    removeLastBotLoading();
+    addImageMessage(imageUrl);
+  } catch (err) {
+    removeLastBotLoading();
+    addMessage("❌ Image generation failed", "bot");
+  }
+}
 
-function addImageMessage(url) { if (!url) return addMessage('⚠️ No image returned', 'bot'); const container = document.getElementById('chatContainer'); const img = document.createElement('img'); img.src = url; img.className = 'chat-message bot'; container.appendChild(img); container.scrollTop = container.scrollHeight; }
+// Add image to chat container
+function addImageMessage(url) {
+  const container = document.getElementById("chatContainer");
+  const img = document.createElement("img");
+  img.src = url;
+  img.alt = "Generated Image";
+  img.className = "chat-message bot";
+  container.appendChild(img);
+  container.scrollTop = container.scrollHeight;
+}
 
-function runSearch() { const query = document.getElementById('searchInput').value.trim(); if (!query) return; const choice = prompt("Search on: 1=Google, 2=YouTube, 3=Pinterest, 4=HTML site"); let url = ''; switch (choice) { case '1': url = https://www.google.com/search?q=${encodeURIComponent(query)}; break; case '2': url = https://www.youtube.com/results?search_query=${encodeURIComponent(query)}; break; case '3': url = https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}; break; case '4': url = ${query.startsWith('http') ? query : 'https://' + query}; break; default: alert("Invalid"); return; } window.open(url, '_blank'); }
+// Upload folder (Stub logic)
+function uploadFolder(event) {
+  const files = event.target.files;
+  if (files.length > 0) {
+    addMessage(`📁 Folder with ${files.length} files uploaded`, "user");
+    // You can enhance this logic to process each file if needed
+  }
+}
 
-window.sendMessage = sendMessage; window.uploadImage = uploadImage; window.uploadFolder = uploadFolder; window.uploadLink = uploadLink; window.runSearch = runSearch;
+// Upload link (Stub logic)
+function uploadLink() {
+  const link = prompt("Enter a link to upload or analyze:");
+  if (link) {
+    addMessage(`🔗 Link provided: ${link}`, "user");
+    // Add API logic here if needed
+  }
+}
 
-    
+// Export to window
+window.sendMessage = sendMessage;
+window.uploadImage = uploadImage;
+window.uploadFolder = uploadFolder;
+window.uploadLink = uploadLink;
