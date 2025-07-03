@@ -1,32 +1,45 @@
-let GEMINI_API_KEY = 'AIzaSyC-rFRcdLE5-gd4gm5zM25lahfFMflx3Vc'; // ✅ သင့် Key
+// Load environment variables from .env file
+require('dotenv').config();
+
+// Gemini API Configuration
+const GEMINI_CONFIG = {
+  API_KEY: process.env.GEMINI_API_KEY,
+  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-pro',
+  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-pro-vision',
+  API_ENDPOINT: process.env.GEMINI_ENDPOINT || 'https://generativelanguage.googleapis.com/v1beta/models'
+};
 
 // Main Gemini Reply Generator
 async function generateGeminiReply(prompt, mode = 'text') {
-  // API Endpoint သတ်မှတ်
-  let endpoint = '';
-  let body = {};
+  // Validate API Key
+  if (!GEMINI_CONFIG.API_KEY) {
+    console.error('❌ Gemini API Key not configured');
+    return '❌ API service unavailable';
+  }
+
+  let endpoint, body;
 
   switch (mode) {
     case 'text':
     case 'code':
     case 'plan':
     case 'project':
-      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+      endpoint = `${GEMINI_CONFIG.API_ENDPOINT}/${GEMINI_CONFIG.TEXT_MODEL}:generateContent?key=${GEMINI_CONFIG.API_KEY}`;
       body = {
         contents: [{ parts: [{ text: prompt }] }]
       };
       break;
 
     case 'image':
-      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/image-generator:generateContent?key=${GEMINI_API_KEY}`;
+      endpoint = `${GEMINI_CONFIG.API_ENDPOINT}/${GEMINI_CONFIG.VISION_MODEL}:generateContent?key=${GEMINI_CONFIG.API_KEY}`;
       body = { prompt: prompt };
       break;
 
     case 'video':
-      return "⚠️ Gemini မသုံးနိုင်သေးတဲ့ Video mode ဖြစ်ပါတယ်။";
+      return "⚠️ Video mode not supported";
     
     default:
-      return `❌ မသိတဲ့ mode: "${mode}"`;
+      return `❌ Unknown mode: "${mode}"`;
   }
 
   try {
@@ -39,24 +52,21 @@ async function generateGeminiReply(prompt, mode = 'text') {
     if (!res.ok) {
       const errorText = await res.text();
       console.error('❌ Gemini Error', res.status, errorText);
-      return `❌ Gemini API Error (${res.status}): ${errorText}`;
+      return `❌ Gemini API Error (${res.status})`;
     }
 
     const data = await res.json();
-    console.log('✅ Gemini Response:', data);
-
-    // Response ဖော်ပြ
-    if (mode === 'image') {
-      return data?.candidates?.[0]?.content?.imageUri || "⚠️ Image URL မရရှိပါ";
-    } else {
-      return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ Response မရရှိပါ";
-    }
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response content";
 
   } catch (err) {
     console.error('❌ Gemini Network Error:', err);
-    return '❌ Gemini Network Error: ' + err.message;
+    return '❌ Service unavailable';
   }
 }
 
-// Global Export
-window.generateGeminiReply = generateGeminiReply;
+// Export only in Node.js environment
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { generateGeminiReply };
+} else {
+  window.generateGeminiReply = generateGeminiReply;
+}
