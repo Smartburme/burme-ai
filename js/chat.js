@@ -14,8 +14,12 @@ async function sendMessage() {
     return;
   }
 
-  const reply = await generateGeminiReply(message, "text");
-  addMessage(reply, "bot");
+  try {
+    const reply = await generateGeminiReply(message, "text");
+    addMessage(reply, "bot");
+  } catch (err) {
+    addMessage("⚠️ Gemini API error: " + err.message, "bot");
+  }
 }
 
 // Render message in chat UI
