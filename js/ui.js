@@ -1,96 +1,53 @@
-// ui.js
+// ui.js - Handles UI effects, mode selection, float3D
 
-// Show loader animation during API call
-function showLoader(container) {
-  const loader = document.createElement('div');
-  loader.className = 'loader';
-  loader.innerText = '⏳ Thinking...';
-  loader.style.cssText = `
-    color: #00ffff;
-    font-style: italic;
-    margin: 10px;
-    font-size: 14px;
-    user-select: none;
-  `;
-  container.appendChild(loader);
-  container.scrollTop = container.scrollHeight;
-  return loader;
+document.addEventListener("DOMContentLoaded", () => {
+  applyFloat3D();
+  setupModeSelector();
+});
+
+// ✅ Float3D background animation
+function applyFloat3D() {
+  const body = document.body;
+  body.style.perspective = "1000px";
+  body.style.transformStyle = "preserve-3d";
+  body.addEventListener("mousemove", (e) => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const offsetX = (e.clientX - centerX) / centerX;
+    const offsetY = (e.clientY - centerY) / centerY;
+
+    body.style.transform = `rotateY(${offsetX * 5}deg) rotateX(${-offsetY * 5}deg)`;
+  });
 }
 
-// Remove loader
-function removeLoader(loader) {
-  if (loader && loader.parentNode) {
-    loader.parentNode.removeChild(loader);
-  }
+// ✅ Add mode selector dropdown (text/image/code/video)
+function setupModeSelector() {
+  const inputBar = document.querySelector(".input-bar");
+  if (!inputBar) return;
+
+  const selector = document.createElement("select");
+  selector.id = "modeSelect";
+  selector.style.background = "#111";
+  selector.style.color = "#00ffff";
+  selector.style.border = "1px solid #00ffff";
+  selector.style.borderRadius = "6px";
+  selector.style.padding = "6px";
+  selector.style.marginTop = "6px";
+  selector.style.fontSize = "14px";
+
+  const modes = ["text", "image", "code", "video"];
+  modes.forEach((m) => {
+    const option = document.createElement("option");
+    option.value = m;
+    option.innerText = m.toUpperCase();
+    selector.appendChild(option);
+  });
+
+  inputBar.appendChild(selector);
 }
 
-// Add chat message (text)
-function addMessage(text, sender = 'bot') {
-  const container = document.getElementById('chatContainer');
-  const message = document.createElement('div');
-  message.className = 'chat-message ' + sender;
-  message.textContent = text;
-  container.appendChild(message);
-  container.scrollTop = container.scrollHeight;
+// ✅ Get selected mode
+function getSelectedMode() {
+  const selector = document.getElementById("modeSelect");
+  return selector ? selector.value : "text";
 }
-
-// Add chat message (image)
-function addImageMessage(url) {
-  if (!url) {
-    addMessage('⚠️ No image URL provided.', 'bot');
-    return;
-  }
-  const container = document.getElementById('chatContainer');
-  const img = document.createElement('img');
-  img.src = url;
-  img.alt = 'Generated Image';
-  img.className = 'chat-message bot generated-image';
-  img.style.borderRadius = '8px';
-  img.style.margin = '10px 5px';
-  container.appendChild(img);
-  container.scrollTop = container.scrollHeight;
-}
-
-// Clear chat history
-function clearChat() {
-  const container = document.getElementById('chatContainer');
-  container.innerHTML = '';
-}
-
-// For setting.html: Show/hide API key input & save button status
-function updateApiKeyUI() {
-  const keyInput = document.getElementById('apiKeyInput');
-  const saveBtn = document.getElementById('saveApiKeyBtn');
-  if (!keyInput || !saveBtn) return;
-
-  if (keyInput.value.trim() === '') {
-    saveBtn.disabled = true;
-    saveBtn.style.opacity = '0.5';
-  } else {
-    saveBtn.disabled = false;
-    saveBtn.style.opacity = '1';
-  }
-}
-
-// Attach input event to API key input field
-function setupApiKeyInput() {
-  const keyInput = document.getElementById('apiKeyInput');
-  if (!keyInput) return;
-  keyInput.addEventListener('input', updateApiKeyUI);
-  updateApiKeyUI();
-}
-
-// Initialize UI
-function initUI() {
-  setupApiKeyInput();
-}
-
-// Export functions globally if needed
-window.showLoader = showLoader;
-window.removeLoader = removeLoader;
-window.addMessage = addMessage;
-window.addImageMessage = addImageMessage;
-window.clearChat = clearChat;
-window.updateApiKeyUI = updateApiKeyUI;
-window.setupApiKeyInput = setupApiKeyInput;
-window.initUI = initUI;
