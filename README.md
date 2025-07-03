@@ -3,29 +3,37 @@
 ```
 burme-ai/
 │
-├── index.html              ← 🔐 Login Page (Firebase/Auth.js)
-├── register.html           ← 📝 Register Page
-├── reset.html              ← 🔑 Reset Password Page
-├── mainchat.html           ← 🤖 Main Chat UI (Text, Image, Code)
-├── about.html              ← 📘 Loads README.md (About Project)
-├── privacy.html            ← 🔐 Privacy Policy & Terms
-│
-├── js/                     ← 📁 JavaScript Files
-│   ├── auth.js             ← Auth Logic (Login/Register/Reset using Firebase)
-│   ├── chat.js             ← ChatBot Logic (Text/Image/Code switch)
-│   ├── gemini.js           ← Gemini API Calls using Google Drive Key
-│   ├── ui.js               ← UI Logic (Sidebar, Float3D, Theme)
-│   └── markdown.js         ← Loads & renders README.md (for about.html)
-│
-├── css/
-│   └── style.css           ← 🌈 Global Styles (Responsive, Neon UI, float3D)
+├── index.html              ← 🏠 Home/Main Entry
+├── login.html              ← 🔑 Login Page  
+├── register.html           ← 📝 Registration
+├── reset.html              ← 🔄 Password Reset
+├── chat.html               ← 💬 Main Chat Interface
+├── about.html              ← ℹ️ Project Info
+├── user-control.html       ← 👤 User Settings & Controls
+├── aip.html                ← 🤖 AI Profile Configuration
 │
 ├── assets/
-│   └── icon.jpg            ← 🌐 App Icon (e.g. `burme-ai.io/image/icon.jpg`)
+│   ├── js/
+│   │   ├── firebase.js     ← 🔥 Firebase Config
+│   │   ├── gemini-api.js   ← 🤖 Gemini Integration
+│   │   ├── user-control.js ← 👤 User Management Logic
+│   │   └── ai-profiles.js  ← 🤖 AI Configuration Logic
+│   │
+│   ├── images/             ← 🖼️ All Static Media
+│   │   ├── logo.png
+│   │   ├── bg-pattern.jpg
+│   │   └── icon.jpg        ← 🎯 App Icon (already exists)
+│   │
+│   └── css/                ← 🎨 Minimal Shared CSS
+│       └── base.css        ← 🏗️ Core Styles Only
 │
-├── .gitignore              ← Ignores `.env`, `node_modules/` etc.
-├── README.md               ← 🧾 Project Info for `about.html`
-└── README.MD               ← (optional) for GitHub display
+├── worker/                ← ☁️ Cloudflare Workers
+│   ├── index.js           ← Main Worker Script
+│   └── wrangler.toml      ← Deployment Config
+│
+├── firebase.json          ← 🔥 Firebase Hosting Config
+├── .gitignore             ← 🚫 Ignored Files
+└── README.md              ← 📖 Project Documentation
 ```
 # Burme-ai
 
