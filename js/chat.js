@@ -1,126 +1,154 @@
-// chat.js
+// chat.js - Improved Version
 
+// DOM Elements
 const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 
-// User စာပို့ရင် API ကိုခေါ်ပြီး reply ပြန်လည်ပြ
+// Message Types
+const MESSAGE_TYPES = {
+  TEXT: 'text',
+  IMAGE: 'image',
+  ERROR: 'error',
+  LOADING: 'loading'
+};
+
+// Message Senders
+const SENDERS = {
+  USER: 'user',
+  BOT: 'bot'
+};
+
+// Load environment variables (for Node.js/Webpack)
+const GEMINI_API_KEY = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : window.GEMINI_API_KEY;
+
+// Validate API Key
+if (!GEMINI_API_KEY) {
+  console.error('❌ Gemini API Key not configured');
+  addMessage('Service configuration error. Please try again later.', SENDERS.BOT, MESSAGE_TYPES.ERROR);
+}
+
+/**
+ * Send message to Gemini API and handle response
+ */
 async function sendMessage() {
   const text = userInput.value.trim();
-  if (!text) return;
+  if (!text || !GEMINI_API_KEY) return;
 
-  addMessage(text, 'user');
+  // Add user message
+  addMessage(text, SENDERS.USER);
   userInput.value = '';
   userInput.disabled = true;
 
-  const loader = showLoader(chatContainer);
+  // Show loading indicator
+  const loaderId = `loader-${Date.now()}`;
+  addMessage('Generating response...', SENDERS.BOT, MESSAGE_TYPES.LOADING, loaderId);
 
   try {
-    // mode ကို prompt အရ ယူချင်လို့ ပြင်နိုင်တယ်၊ ယခု text mode ထားထား
-    const reply = await generateGeminiReply(text, 'text');
-    removeLoader(loader);
+    // Determine mode based on input
+    const mode = detectMessageMode(text);
+    const reply = await generateGeminiReply(text, mode);
 
-    if (isValidUrl(reply)) {
-      addImageMessage(reply);
+    // Remove loader and add response
+    removeMessage(loaderId);
+    
+    if (mode === MESSAGE_TYPES.IMAGE || isValidUrl(reply)) {
+      addMessage(reply, SENDERS.BOT, MESSAGE_TYPES.IMAGE);
     } else {
-      addMessage(reply, 'bot');
+      addMessage(reply, SENDERS.BOT);
     }
   } catch (err) {
-    removeLoader(loader);
-    addMessage(`❌ Gemini API error: ${err.message}`, 'bot');
+    removeMessage(loaderId);
+    addMessage(`Service unavailable. Please try again later.`, SENDERS.BOT, MESSAGE_TYPES.ERROR);
+    console.error('API Error:', err);
   } finally {
     userInput.disabled = false;
     userInput.focus();
   }
 }
 
-// chat message add လုပ်ရန်
-function addMessage(text, sender = 'bot') {
-  const div = document.createElement('div');
-  div.className = `chat-message ${sender}`;
-  div.textContent = text;
-  chatContainer.appendChild(div);
+/**
+ * Detect message type based on content
+ */
+function detectMessageMode(text) {
+  if (text.startsWith('/image')) return MESSAGE_TYPES.IMAGE;
+  if (text.startsWith('/code')) return 'code';
+  return MESSAGE_TYPES.TEXT;
+}
+
+/**
+ * Add message to chat
+ */
+function addMessage(content, sender = SENDERS.BOT, type = MESSAGE_TYPES.TEXT, id = '') {
+  const messageElement = document.createElement('div');
+  messageElement.className = `chat-message ${sender} ${type}`;
+  
+  if (type === MESSAGE_TYPES.IMAGE && isValidUrl(content)) {
+    const img = document.createElement('img');
+    img.src = content;
+    img.alt = 'Generated content';
+    img.loading = 'lazy';
+    messageElement.appendChild(img);
+  } else if (type === MESSAGE_TYPES.LOADING) {
+    messageElement.id = id;
+    messageElement.innerHTML = `
+      <div class="loader"></div>
+      <span>Generating response...</span>
+    `;
+  } else {
+    messageElement.textContent = content;
+  }
+
+  chatContainer.appendChild(messageElement);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// image message add လုပ်ရန်
-function addImageMessage(url) {
-  if (!url) {
-    addMessage('⚠️ No image URL returned.', 'bot');
-    return;
-  }
-  const img = document.createElement('img');
-  img.src = url;
-  img.alt = 'Generated Image';
-  img.className = 'chat-message bot generated-image';
-  chatContainer.appendChild(img);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+/**
+ * Remove message by ID
+ */
+function removeMessage(id) {
+  const element = document.getElementById(id);
+  if (element) element.remove();
 }
 
-// loader ပြရန်
-function showLoader(container) {
-  const loader = document.createElement('div');
-  loader.className = 'loader';
-  loader.textContent = '⏳ Thinking...';
-  loader.style.cssText = `
-    color: #00ffff;
-    font-style: italic;
-    margin: 10px;
-    font-size: 14px;
-    user-select: none;
-  `;
-  container.appendChild(loader);
-  container.scrollTop = container.scrollHeight;
-  return loader;
-}
-
-// loader ဖျက်ရန်
-function removeLoader(loader) {
-  if (loader && loader.parentNode) {
-    loader.parentNode.removeChild(loader);
-  }
-}
-
-// Image file upload handler
-function uploadImage(event) {
+/**
+ * Handle image upload
+ */
+async function uploadImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  addMessage(`Uploading image: ${file.name}`, 'user');
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!validTypes.includes(file.type)) {
+    addMessage('Please upload a valid image (JPEG, PNG, WEBP)', SENDERS.BOT, MESSAGE_TYPES.ERROR);
+    return;
+  }
 
-  const prompt = `Generate an image based on: ${file.name}`;
-  const loader = showLoader(chatContainer);
+  addMessage(`Uploading: ${file.name}`, SENDERS.USER);
+  const loaderId = `loader-${Date.now()}`;
+  addMessage('Generating image...', SENDERS.BOT, MESSAGE_TYPES.LOADING, loaderId);
 
-  generateGeminiReply(prompt, 'image')
-    .then((imageUrl) => {
-      removeLoader(loader);
-      if (isValidUrl(imageUrl)) {
-        addImageMessage(imageUrl);
-      } else {
-        addMessage('⚠️ Failed to generate image.', 'bot');
-      }
-    })
-    .catch((err) => {
-      removeLoader(loader);
-      addMessage('❌ Image generation error: ' + err.message, 'bot');
-    });
-}
-
-// Folder upload placeholder handler
-function uploadFolder(event) {
-  alert("📁 Folder upload not implemented yet.");
-  // Folder upload logic ထည့်နိုင်ပါတယ်
-}
-
-// Link upload handler (prompt input)
-function uploadLink() {
-  const link = prompt("Enter link to upload or analyze:");
-  if (link) {
-    addMessage(`Analyzing link: ${link}`, 'user');
-    // Link analysis logic ထည့်ပါ (optional)
+  try {
+    // In a real implementation, you would upload to your server first
+    const prompt = `Generate an enhanced version of: ${file.name}`;
+    const imageUrl = await generateGeminiReply(prompt, MESSAGE_TYPES.IMAGE);
+    
+    removeMessage(loaderId);
+    if (isValidUrl(imageUrl)) {
+      addMessage(imageUrl, SENDERS.BOT, MESSAGE_TYPES.IMAGE);
+    } else {
+      addMessage('Failed to generate image', SENDERS.BOT, MESSAGE_TYPES.ERROR);
+    }
+  } catch (err) {
+    removeMessage(loaderId);
+    addMessage('Image generation failed', SENDERS.BOT, MESSAGE_TYPES.ERROR);
+    console.error('Image Error:', err);
   }
 }
 
-// URL validity check
+/**
+ * Validate URL
+ */
 function isValidUrl(string) {
   try {
     new URL(string);
@@ -130,8 +158,14 @@ function isValidUrl(string) {
   }
 }
 
-// Export globally for HTML inline handlers
+// Export for HTML handlers
 window.sendMessage = sendMessage;
 window.uploadImage = uploadImage;
-window.uploadFolder = uploadFolder;
-window.uploadLink = uploadLink;
+window.uploadFolder = () => addMessage('Folder upload not available yet', SENDERS.BOT);
+window.uploadLink = () => {
+  const link = prompt("Enter URL to analyze:");
+  if (link) {
+    addMessage(`Analyzing: ${link}`, SENDERS.USER);
+    // Add analysis logic here
+  }
+};
