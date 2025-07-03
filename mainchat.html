@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- ✅ mainchat.html - Updated version using .env for API key, no select dropdowns --><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,7 +36,6 @@
       width: 30px;
       height: 30px;
     }
-
     #chatContainer {
       flex: 1 1 auto;
       overflow-y: auto;
@@ -64,7 +62,6 @@
       text-align: left;
       margin-right: auto;
     }
-
     .input-bar {
       background: #000;
       box-shadow: 0 -2px 8px #00ffff55;
@@ -73,7 +70,6 @@
       flex-direction: column;
       gap: 8px;
     }
-
     #userInput {
       width: 100%;
       min-height: 50px;
@@ -85,18 +81,15 @@
       font-size: 16px;
       resize: vertical;
     }
-
     .input-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .icon-inside {
       display: flex;
       gap: 10px;
     }
-
     .icon-inside button, .send-button {
       background: none;
       border: none;
@@ -104,7 +97,6 @@
       font-size: 22px;
       cursor: pointer;
     }
-
     .send-button {
       background: #00ffff;
       color: #000;
@@ -112,55 +104,25 @@
       border-radius: 8px;
       font-weight: bold;
     }
-
-    .mode-selector {
-      margin-top: 5px;
-      background: #111;
-      border: 1px solid #00ffff66;
-      border-radius: 6px;
-      color: #00ffff;
-      padding: 4px;
-      font-size: 15px;
-    }
   </style>
 </head>
 <body>
-
   <div class="title-bar">
     <a href="setting.html" style="text-decoration:none; color:#00ffff; font-size: 22px;">ミ</a>
     <div class="title-text">Burme Ai</div>
     <img src="assets/icon.jpg" alt="App Icon" />
-  </div>
-
-  <div id="chatContainer"></div>
-
-  <div class="input-bar">
+  </div>  <div id="chatContainer"></div>  <div class="input-bar">
     <textarea id="userInput" rows="2" placeholder="Type your message..."></textarea>
-
-    <select id="modeSelect" class="mode-selector">
-      <option value="text">Text</option>
-      <option value="image">Image</option>
-      <option value="code">Code</option>
-      <option value="video">Video</option>
-    </select>
-
     <div class="input-row">
       <div class="icon-inside">
-        <button onclick="triggerUpload()" title="Upload Image">🖼️</button>
-        <button onclick="triggerFolderUpload()" title="Upload Folder">📁</button>
-        <button onclick="triggerLinkUpload()" title="Upload Link">🔗</button>
+        <button onclick="triggerUpload()">🖼️</button>
+        <button onclick="triggerFolderUpload()">📁</button>
+        <button onclick="triggerLinkUpload()">🔗</button>
       </div>
       <button class="send-button" onclick="sendMessage()">Send</button>
     </div>
-  </div>
-
-  <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
-  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display:none;" onchange="uploadFolder(event)">
-
-  <script src="js/chat.js"></script>
-  <script src="js/gemini.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
+  </div>  <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
+  <input type="file" id="folderUpload" webkitdirectory directory multiple style="display:none;" onchange="uploadFolder(event)">  <!-- Load environment -->  <script src="js/env.js"></script>  <script src="js/chat.js"></script>  <script src="js/gemini.js"></script>  <script src="js/ui.js"></script>  <script>
     function triggerUpload() {
       document.getElementById('imageUpload').click();
     }
@@ -172,9 +134,31 @@
       if (link) alert("Uploading link: " + link);
     }
 
-    function getSelectedMode() {
-      return document.getElementById("modeSelect").value || "text";
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage(message, 'user');
+      input.value = '';
+
+      // ✅ Admin shortcut
+      if (message.toLowerCase() === 'admin-0000') {
+        window.location.href = 'usercontrol.html';
+        return;
+      }
+
+      const reply = await generateGeminiReply(message);
+      addMessage(reply, 'bot');
     }
-  </script>
-</body>
+
+    function addMessage(text, sender) {
+      const container = document.getElementById('chatContainer');
+      const div = document.createElement('div');
+      div.className = 'chat-message ' + sender;
+      div.innerText = text;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+  </script></body>
 </html>
