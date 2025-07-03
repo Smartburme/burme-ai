@@ -1,53 +1,56 @@
-// ui.js - Handles UI effects, mode selection, float3D
+// ui.js - UI interaction logic for Burme AI
 
 document.addEventListener("DOMContentLoaded", () => {
-  applyFloat3D();
-  setupModeSelector();
+  setupUploadTriggers();
 });
 
-// ✅ Float3D background animation
-function applyFloat3D() {
-  const body = document.body;
-  body.style.perspective = "1000px";
-  body.style.transformStyle = "preserve-3d";
-  body.addEventListener("mousemove", (e) => {
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const offsetX = (e.clientX - centerX) / centerX;
-    const offsetY = (e.clientY - centerY) / centerY;
-
-    body.style.transform = `rotateY(${offsetX * 5}deg) rotateX(${-offsetY * 5}deg)`;
-  });
+// ✅ Upload image
+function triggerUpload() {
+  document.getElementById("imageUpload").click();
 }
 
-// ✅ Add mode selector dropdown (text/image/code/video)
-function setupModeSelector() {
-  const inputBar = document.querySelector(".input-bar");
-  if (!inputBar) return;
+function uploadImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  const selector = document.createElement("select");
-  selector.id = "modeSelect";
-  selector.style.background = "#111";
-  selector.style.color = "#00ffff";
-  selector.style.border = "1px solid #00ffff";
-  selector.style.borderRadius = "6px";
-  selector.style.padding = "6px";
-  selector.style.marginTop = "6px";
-  selector.style.fontSize = "14px";
-
-  const modes = ["text", "image", "code", "video"];
-  modes.forEach((m) => {
-    const option = document.createElement("option");
-    option.value = m;
-    option.innerText = m.toUpperCase();
-    selector.appendChild(option);
-  });
-
-  inputBar.appendChild(selector);
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    addMessage("📷 Image uploaded:", "user");
+    const img = document.createElement("img");
+    img.src = e.target.result;
+    img.style.maxWidth = "100%";
+    img.style.borderRadius = "10px";
+    const container = document.getElementById("chatContainer");
+    container.appendChild(img);
+    container.scrollTop = container.scrollHeight;
+  };
+  reader.readAsDataURL(file);
 }
 
-// ✅ Get selected mode
-function getSelectedMode() {
-  const selector = document.getElementById("modeSelect");
-  return selector ? selector.value : "text";
+// ✅ Upload folder (optional display only)
+function triggerFolderUpload() {
+  document.getElementById("folderUpload").click();
+}
+function uploadFolder(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+  addMessage(`📁 Folder uploaded with ${files.length} files.`, "user");
+}
+
+// ✅ Upload link
+function triggerLinkUpload() {
+  const link = prompt("🔗 Enter link to upload or analyze:");
+  if (link) {
+    addMessage(`🔗 Link uploaded: ${link}`, "user");
+  }
+}
+
+// ✅ Chat UI render helper (if needed externally)
+function addMessage(text, sender) {
+  const container = document.getElementById("chatContainer");
+  const div = document.createElement("div");
+  div.className = "chat-message " + sender;
+  div.innerText = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
 }
