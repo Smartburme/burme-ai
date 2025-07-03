@@ -35,6 +35,7 @@ burme-ai/
 ├── .gitignore             ← 🚫 Ignored Files
 └── README.md              ← 📖 Project Documentation
 ```
+
 # Burme-ai
 
 Burme-ai သည် မြန်မာဘာသာစကားအတွက် AI assistant web app ဖြစ်ပြီး  
@@ -60,4 +61,22 @@ Chat (စာသား၊ ပုံ၊ ကုဒ်) ဖန်တီးနို�
 - Ph       09677740154
 
 ## purpose 
-- for ai generate and Study and learn. 
+- for ai generate and Study and learn.
+  
+## 🚀 Deployment
+
+### Cloudflare Workers
+1. Install Wrangler CLI: `npm install -g wrangler`
+2. Login: `wrangler login`
+3. Deploy: `wrangler deploy`
+
+### GitHub Pages
+1. Go to Settings > Pages
+2. Select `main` branch
+3. Set `/root` as source
+
+## 🔧 Environment Variables
+Rename `.env.sample` to `.env` and fill your:
+- Firebase credentials
+- Gemini API key
+- Cloudflare account details
