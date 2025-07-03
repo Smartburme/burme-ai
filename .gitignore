@@ -1,24 +1,71 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# 🔒 Environment Variables
+.env
+.env.*
+!.env.example  # Only keep the example file
 
-node_modules
-dist
-dist-ssr
-*.local
+# 🔥 Firebase
+.firebase/
+firebase-debug.log
+firebase-export.json
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# 🛠️ Development
+node_modules/
+dist/
+.cache/
+.temp/
+.idea/
+.vscode/
+*.swp
+*.swo
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# ☁️ Cloudflare Workers
+wrangler.toml.local
+*.tmp.js
+
+# 🗄️ Build & Dependencies
+package-lock.json
+yarn.lock
+.next/
+out/
+.cache-loader/
+
+# 🧪 Testing
+coverage/
+.nyc_output/
+*.log
+test-results/
+
+# 📦 OS & Editor
+*.bak
+*.orig
+*.log
+*.pid
+*.seed
+*.pid.lock
+*.pem
+*.cer
+*.crt
+*.key
+
+# 🖼️ Generated Assets
+assets/generated/
+assets/temp/
+
+# 🔑 Private Keys
+*.p12
+*.pfx
+*.key
+*.cert
+*.pub
+*.gpg
+*.asc
+
+# 🗄️ Database
+*.db
+*.sqlite
+*.dump
+
+# 📝 Custom (Add project-specific ignores below)
+worker/secrets.*
