@@ -1,15 +1,4 @@
-// chat.js - Chat logic for Burme Ai
-// Requires: gemini.js, ui.js
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("userInput");
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-});
+// chat.js - Gemini API chat logic
 
 async function sendMessage() {
   const input = document.getElementById("userInput");
@@ -19,44 +8,30 @@ async function sendMessage() {
   addMessage(message, "user");
   input.value = "";
 
-  // Admin shortcut
+  // ✅ Admin shortcut
   if (message.toLowerCase() === "admin-0000") {
     window.location.href = "usercontrol.html";
     return;
   }
 
-  const mode = getSelectedMode(); // text / image / code / video
-  const reply = await generateGeminiReply(message, mode);
-
-  if (mode === "image" || mode === "video") {
-    addMedia(reply, mode);
-  } else {
-    addMessage(reply, "bot");
-  }
+  const reply = await generateGeminiReply(message, "text");
+  addMessage(reply, "bot");
 }
 
-function addMessage(text, sender = "bot") {
+// Render message in chat UI
+function addMessage(text, sender) {
   const container = document.getElementById("chatContainer");
   const div = document.createElement("div");
-  div.className = `chat-message ${sender}`;
+  div.className = "chat-message " + sender;
   div.innerText = text;
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
-function addMedia(url, type = "image") {
-  const container = document.getElementById("chatContainer");
-  const div = document.createElement("div");
-  div.className = "chat-message bot";
-
-  if (type === "image") {
-    div.innerHTML = `<img src="${url}" alt="Generated Image" style="max-width:100%; border-radius:10px;">`;
-  } else if (type === "video") {
-    div.innerHTML = `<video controls style="max-width:100%; border-radius:10px;"><source src="${url}" type="video/mp4">Your browser does not support video.</video>`;
-  } else {
-    div.innerText = url;
+// Optional: Trigger by Enter
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
   }
-
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
+});
