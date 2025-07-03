@@ -1,72 +1,52 @@
-// Load environment variables from .env file
-require('dotenv').config();
-
-// Gemini API Configuration
-const GEMINI_CONFIG = {
-  API_KEY: process.env.GEMINI_API_KEY,
-  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-pro',
-  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-pro-vision',
-  API_ENDPOINT: process.env.GEMINI_ENDPOINT || 'https://generativelanguage.googleapis.com/v1beta/models'
-};
-
-// Main Gemini Reply Generator
+// gemini.js - Supports text, image, code, video modes
 async function generateGeminiReply(prompt, mode = 'text') {
-  // Validate API Key
-  if (!GEMINI_CONFIG.API_KEY) {
-    console.error('❌ Gemini API Key not configured');
-    return '❌ API service unavailable';
+  const apiKey = window.ENV?.GEMINI_API_KEY;
+  const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+
+  if (!apiKey) {
+    console.error("❌ Gemini API Key not found in ENV");
+    return "API Key missing.";
   }
 
-  let endpoint, body;
+  let finalPrompt = prompt;
 
-  switch (mode) {
-    case 'text':
-    case 'code':
-    case 'plan':
-    case 'project':
-      endpoint = `${GEMINI_CONFIG.API_ENDPOINT}/${GEMINI_CONFIG.TEXT_MODEL}:generateContent?key=${GEMINI_CONFIG.API_KEY}`;
-      body = {
-        contents: [{ parts: [{ text: prompt }] }]
-      };
-      break;
-
-    case 'image':
-      endpoint = `${GEMINI_CONFIG.API_ENDPOINT}/${GEMINI_CONFIG.VISION_MODEL}:generateContent?key=${GEMINI_CONFIG.API_KEY}`;
-      body = { prompt: prompt };
-      break;
-
-    case 'video':
-      return "⚠️ Video mode not supported";
-    
-    default:
-      return `❌ Unknown mode: "${mode}"`;
+  if (mode === 'image') {
+    finalPrompt = `Generate a detailed, realistic image of: ${prompt}`;
+  } else if (mode === 'code') {
+    finalPrompt = `Write efficient code for: ${prompt}`;
+  } else if (mode === 'video') {
+    finalPrompt = `Describe a video idea for: ${prompt} (or provide a video link if supported).`;
   }
 
   try {
-    const res = await fetch(endpoint, {
+    const res = await fetch(`${endpoint}?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: finalPrompt }] }]
+      })
     });
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('❌ Gemini Error', res.status, errorText);
-      return `❌ Gemini API Error (${res.status})`;
-    }
-
     const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No response content";
 
-  } catch (err) {
-    console.error('❌ Gemini Network Error:', err);
-    return '❌ Service unavailable';
+    // Handle image & video logic separately (if returned as base64 or URL)
+    const response = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!response) return "⚠️ No response from Gemini.";
+
+    // If the response contains an image or video URL
+    if (mode === 'image' && response.includes('http')) return extractUrl(response);
+    if (mode === 'video' && response.includes('http')) return extractUrl(response);
+
+    return response;
+  } catch (error) {
+    console.error("Gemini error:", error);
+    return "❌ Error connecting to Gemini API.";
   }
 }
 
-// Export only in Node.js environment
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { generateGeminiReply };
-} else {
-  window.generateGeminiReply = generateGeminiReply;
+// 🔧 Helper to extract first URL from text
+function extractUrl(text) {
+  const urlMatch = text.match(/https?:\/\/[^\s]+/);
+  return urlMatch ? urlMatch[0] : text;
 }
