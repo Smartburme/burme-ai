@@ -1,9 +1,0 @@
-name = "burme-ai-worker"
-main = "worker.js"       # အဓိက entry file
-compatibility_date = "2024-07-03"
-account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"  # Cloudflare ကရမယ့် ID
-workers_dev = true       # Development mode
-
-# GitHub နဲ့ချိတ်ဆက်ဖို့ (လိုအပ်ပါက)
-[vars]
-GITHUB_REPO_URL = "https://github.com/Smartburme/burme-ai.io"
