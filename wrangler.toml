@@ -1,0 +1,14 @@
+name = "burme-ai"
+compatibility_date = "2025-07-03"
+
+[build]
+command = "npm run build"
+upload_dir = "dist"
+
+[vars]
+# .env.local မှာသတ်မှတ်ထားတာကို override လုပ်နိုင်သည်
+VITE_GEMINI_API_KEY = "@gemini_api_key" 
+
+# build process တွင် .env.local ကိုဖတ်နိုင်ရန်
+[build.upload]
+dotenv = ".env.local"
