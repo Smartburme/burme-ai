@@ -1,72 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>index</title>
+  <meta charset="UTF-8" />
+  <title>Burme Ai</title> <!-- ဒီနေရာက Title Bar မှာပြမှာ -->
   <style>
+    :root {
+      --primary: #00ffff;
+      --bg: #000000;
+      --text: #ffffff;
+      --card-bg: #111111;
+    }
+
     body {
       margin: 0;
-      background: black;
+      background: var(--bg);
       height: 100vh;
       overflow: hidden;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      position: relative;
+    }
+
+    .top-bar {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 20px;
+      user-select: none;
+    }
+
+    .top-bar .setting {
+      font-size: 20px;
+      color: var(--primary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .top-bar .icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    /* Burme Ai Title Center */
+    .page-title {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 20px;
+      user-select: none;
+      pointer-events: none;
+      letter-spacing: 2px;
+      text-shadow: 0 0 6px rgba(0,255,255,0.7);
+      z-index: 11;
+    }
+
+    .generate-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      animation: fadeIn 2s ease forwards;
+      margin-bottom: 60px; /* Footer နေရာ ချန်ထား */
+    }
+
+    .gen-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 30px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 200px;
+      text-align: center;
+    }
+
+    .gen-btn:hover {
+      background: rgba(0, 255, 255, 0.1);
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    }
+
+    .footer-bar {
+      width: 260px;             /* ပိုရှည် */
+      height: 42px;             /* ပိုကြီး */
+      font-size: 15px;          /* စာကြီး */
+      font-weight: 600;
+      background-color: var(--card-bg);
+      color: var(--primary);
+      border: 2px solid #00ffff;  /* လှတဲ့ border */
+      border-radius: 25px;        /* နူးညံ့တဲ့ နား */
+      text-align: center;
+      position: fixed;
+      bottom: 20%;               /* 20% အပေါ် */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
-      font-family: 'Arial', sans-serif;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 14px rgba(0, 255, 255, 0.7); /* ပိုမိုလှသော shadow */
+      user-select: none;
     }
-    .logo {
-      font-size: 2em;
-      color: white;
-      opacity: 0;
-      animation: fadeIn 3s ease forwards;
-      margin-bottom: 20px;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0,255,255,0.7);
+
+    .footer-bar:hover {
+      background-color: rgba(0, 255, 255, 0.2);
+      border-color: #00ffff;
+      box-shadow: 0 0 18px rgba(0, 255, 255, 1);
     }
 
     @keyframes fadeIn {
       to { opacity: 1; }
     }
-
-    .loader svg {
-      width: 150px;
-      height: 150px;
-    }
-
-    .loader svg polygon {
-      fill: none;
-      stroke: #00ffff;
-      stroke-width: 8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 240;
-      stroke-dashoffset: 240;
-      animation: draw 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes draw {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
   </style>
 </head>
 <body>
 
-<div class="logo"> Burme Ai </div>
+  <!-- Top Bar (Setting + Logo Icon) -->
+  <div class="top-bar">
+    <div class="setting" onclick="goToSettings()">☰</div>
+    <img src="assets/icon.jpg" class="icon" alt="logo" />
+  </div>
 
-<div class="loader">
-  <svg viewBox="0 0 100 100">
-    <polygon points="50,10 90,90 10,90" />
-  </svg>
-</div>
+  <!-- Burme Ai Page Title Center -->
+  <div class="page-title">Burme Ai</div>
 
-<script>
-  setTimeout(function() {
-    window.location.href = "start.html"; // ဒီမှာ မင်း Login Page URL ထည့်
-  }, 3000); // 3000 milliseconds = 3 seconds
-</script>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "fd1aad8c3c3f421cb241c3d0ba45b59f"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Generator Options -->
+  <div class="generate-buttons">
+    <div class="gen-btn" onclick="goTo('text')">📝 Text</div>
+    <div class="gen-btn" onclick="goTo('text2img')">🎨 Text to Image</div>
+    <div class="gen-btn" onclick="goTo('img2video')">🎞️ Image to Video</div>
+    <div class="gen-btn" onclick="goTo('img2code')">💻 Image to Code</div>
+  </div>
+
+  <!-- New Chat button fixed bottom (chat box နေရာ) -->
+  <div class="footer-bar" onclick="startNewChat()">➕ New Chat</div>
+
+  <script>
+    function goTo(mode) {
+      alert(`Navigate to: ${mode}`);
+      // window.location.href = `${mode}.html`;
+    }
+
+    function startNewChat() {
+      alert("Starting new chat...");
+      // window.location.href = "chat.html";
+    }
+
+    function goToSettings() {
+      alert("Settings Page");
+      // window.location.href = "setting.html";
+    }
+  </script>
+
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "fd1aad8c3c3f421cb241c3d0ba45b59f"}'></script>
+
 </body>
 </html>
